@@ -63,116 +63,87 @@ MAX_IMFS = len(imfs)
 #     return feature_Vector.flatten()
 
 
+feature_names = []
+
+feature_names.append(f"RMS_")
+feature_names.append(f"P2P_")
+feature_names.append(f"Var_")
+feature_names.append(f"Skew_")
+feature_names.append(f"Kurt_")
+feature_names.append(f"Crest_")
+feature_names.append(f"Impulse_")
 
 
-# def time_features(imfs: list):
-#     len_imfs = len(imfs)
+# spectral features
+feature_names.append(f"TotalEnergy_")
+feature_names.append(f"Centroid_")
+feature_names.append(f"Rolloff_")
+feature_names.append(f"MaxPxx_")
+feature_names.append(f"SpectralKurtosis_")
+feature_names.append(f"MedianFreq_")
+feature_names.append(f"StdFreq_")
+
+
+
+
+def time_features(imfs: list):
+    len_imfs = len(imfs)
+    feature_vec = np.zeros((7, len_imfs))  
     
-#     # Max possible features = 12 (you will enable the ones you need)
-#     feature_vec = np.zeros((12, len_imfs))
-    
-#     for idx, x in enumerate(imfs):
+    for idx, x in enumerate(imfs):
+        rms = np.sqrt(np.mean(x ** 2))
+        p2p = np.max(x) - np.min(x)
+        var_val = np.var(x)
+        skew_val = skew(x)
+        kurt_val = kurtosis(x)
+        abs_mean = np.mean(np.abs(x))
 
-#         # Preprocessing
-#         rms = np.sqrt(np.mean(x ** 2))
-#         p2p = np.max(x) - np.min(x)
-#         mean_val = np.mean(x)
-#         abs_mean = np.mean(np.abs(x))
-#         std_val = np.std(x)
-#         var_val = np.var(x)
-#         skew_val = skew(x)
-#         kurt_val = kurtosis(x)
+        crest_factor = np.max(np.abs(x)) / (rms + 1e-12)
+        impulse_factor = np.max(np.abs(x)) / (abs_mean + 1e-12)
 
-#         # Advanced
-#         crest_factor = np.max(np.abs(x)) / (rms + 1e-12)
-#         impulse_factor = np.max(np.abs(x)) / (abs_mean + 1e-12)
-#         shape_factor = rms / (abs_mean + 1e-12)
+        feature_vec[:, idx] = [
+            rms,
+            p2p,
+            var_val,
+            skew_val,
+            kurt_val,
+            crest_factor,
+            impulse_factor
+        ]
 
-#         # Hjorth parameters
-#         dx = np.diff(x)
-#         hj_mobility = np.sqrt(np.var(dx) / (var_val + 1e-12))
-#         hj_complexity = np.sqrt((np.var(np.diff(dx)) + 1e-12) / (np.var(dx) + 1e-12))
 
-#         # -----------------------------
-#         #   TIER S — BEST FEATURES
-#         # -----------------------------
-#         feature_vec[0][idx] = rms
-#         feature_vec[1][idx] = p2p
-#         feature_vec[2][idx] = var_val
-#         feature_vec[3][idx] = skew_val
-#         feature_vec[4][idx] = kurt_val
-#         feature_vec[5][idx] = crest_factor
+    return feature_vec.flatten()
 
-#         # # -----------------------------
-#         # #   TIER A — STRONG FEATURES
-#         # # -----------------------------
-#         feature_vec[6][idx] = impulse_factor
-#         feature_vec[7][idx] = shape_factor
-#         feature_vec[8][idx] = abs_mean
 
-#         # -----------------------------
-#         #   TIER B — OPTIONAL
-#         # -----------------------------
-#         feature_vec[9][idx] = std_val
-#         feature_vec[10][idx] = hj_mobility
-#         feature_vec[11][idx] = hj_complexity
 
-#     return feature_vec.flatten()
+def spectral_features(imfs: list):
+    len_imfs = len(imfs)
+    feature_vec = np.zeros((7, len_imfs))
 
-# def spectral_features(imfs: list):
-#     len_imfs = len(imfs)
-    
-#     # Max features = 12 (but best 8 recommended)
-#     feature_vec = np.zeros((8, len_imfs))
+    for idx, item in enumerate(imfs):
+        f, Pxx = welch(item, fs=1000, nperseg=min(1024, len(item)))
 
-#     for idx, item in enumerate(imfs):
+        total_energy = np.sum(Pxx)
+        centroid = np.sum(f * Pxx) / (total_energy + 1e-12)
 
-#         # Welch Spectrum
-#         f, Pxx = welch(item, fs=1000, nperseg=min(1024, len(item)))
+        cumulative = np.cumsum(Pxx)
+        rolloff = f[np.where(cumulative >= 0.85 * total_energy)[0][0]]
 
-#         # Basic statistics
-#         total_energy = np.sum(Pxx)
-#         C = np.sum(f * Pxx) / (total_energy + 1e-12)
-#         gm = np.exp(np.mean(np.log(Pxx + 1e-10)))
-#         am = np.mean(Pxx)
+        spectral_kurt = kurtosis(Pxx)
+        median_freq = np.median(f)
+        std_freq = np.std(f)
 
-#         # Rolloff
-#         cumulative_sum = np.cumsum(Pxx)
-#         threshold = 0.85 * total_energy
-#         rolloff_freq = f[np.where(cumulative_sum >= threshold)[0][0]]
+        feature_vec[:, idx] = [
+            total_energy,
+            centroid,
+            rolloff,
+            np.max(Pxx),
+            spectral_kurt,
+            median_freq,
+            std_freq
+        ]
 
-#         # Extra stats
-#         median_freq = np.median(f)
-#         mean_freq = np.mean(f)
-#         std_freq = np.std(f)
-#         max_freq = np.max(f)
-
-#         # -----------------------------
-#         #   TIER S — BEST SPECTRAL FEATURES
-#         # -----------------------------
-#         feature_vec[0][idx] = total_energy            # Spectral Energy
-#         feature_vec[1][idx] = C                       # Centroid
-#         # feature_vec[2][idx] = np.sqrt(np.sum(((f - C) ** 2) * Pxx) / (total_energy + 1e-12))  # Bandwidth
-#         feature_vec[2][idx] = rolloff_freq            # Rolloff
-#         # feature_vec[3][idx] = gm / am                 # Flatness
-#         feature_vec[3][idx] = np.max(Pxx)             # Spectral Max
-#         feature_vec[4][idx] = kurtosis(Pxx)           # Spectral Kurtosis
-#         # feature_vec[5][idx] = median_freq             # Median Frequency
-
-#         # # -----------------------------
-#         # #   TIER A — STRONG ADDITIONS
-#         # # -----------------------------
-#         # feature_vec[6][idx] = max_freq                # Peak frequency
-#         feature_vec[7][idx] = mean_freq               # Mean frequency
-
-#         # # -----------------------------
-#         # #   TIER B — OPTIONAL
-#         # # -----------------------------
-#         feature_vec[8][idx] = std_freq               # Standard deviation
-#         feature_vec[9][idx] = skew(f)                # Spectral skewness
-
-#     return feature_vec.flatten()
-
+    return feature_vec.flatten()
 
 # def hybrid_features(imfs: list):
 #     len_imfs = len(imfs)
@@ -355,8 +326,8 @@ MAX_IMFS = len(imfs)
 
 
 def extract_features(imfs_len: int, feature_len: int):
-    feature_matrix_healthy = np.zeros((len(healthy_Dict["x"]), imfs_len * feature_len))
-    feature_matrix_faulty = np.zeros((len(faulty_Dict["x"]), imfs_len * feature_len))
+    feature_matrix_healthy = np.zeros((len(healthy_Dict["x"]), 2*(imfs_len * feature_len)))
+    feature_matrix_faulty = np.zeros((len(faulty_Dict["x"]), 2*(imfs_len * feature_len)))
    # print(feature_matrix_healthy.shape)
 
     for idx, item in enumerate(healthy_Dict["x"]):
@@ -364,9 +335,10 @@ def extract_features(imfs_len: int, feature_len: int):
         item_mag = np.sqrt(x**2 + y**2 + z**2)
         imfs_signal = sig_to_imf(item_mag)
 
-        feature = time_features(imfs_signal).flatten()  # (66,)
-        # print(feature)
-        # print("----------------------")
+        feature1 = time_features(imfs_signal).flatten()  # (66,)
+        feature2 = spectral_features(imfs_signal).flatten()  # (66,)
+       
+        feature = np.concatenate((feature1, feature2))
     
         feature_matrix_healthy[idx] = feature
 
@@ -375,7 +347,10 @@ def extract_features(imfs_len: int, feature_len: int):
         item_mag = np.sqrt(x**2 + y**2 + z**2)
         imfs_signal = sig_to_imf(item_mag)
 
-        feature = time_features(imfs_signal).flatten()  # (66,)
+        feature1 = time_features(imfs_signal).flatten()  # (66,)
+        feature2 = spectral_features(imfs_signal).flatten()  # (66,)
+        feature = np.concatenate((feature1, feature2))
+
         feature_matrix_faulty[idx] = feature
     return feature_matrix_healthy, feature_matrix_faulty
     
@@ -423,13 +398,10 @@ def apply_pipeline(model, X, threshold=0.5):
 
 
 
-def cross_validate_model(model_type="lda", n_splits=5,
-                                     imfs_len=7, feature_len=12,
-                                     feature_names=None,
+def cross_validate_model(model_type="svm", n_splits=5,
+                                     imfs_len=7, feature_len=7,
                                      faulty_threshold=0.4):
 
-    if feature_names is None:
-        feature_names = [f"Feature_{i+1}" for i in range(feature_len)]
 
     feature_matrix_healthy, feature_matrix_faulty = extract_features(
         imfs_len=imfs_len, feature_len=feature_len
@@ -449,7 +421,7 @@ def cross_validate_model(model_type="lda", n_splits=5,
     else:
         base_model = LinearDiscriminantAnalysis()
 
-    results_dir = f"Results/{model_type}/thresholded"
+    results_dir = f"Results/{model_type}/H2"
     os.makedirs(results_dir, exist_ok=True)
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)

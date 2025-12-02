@@ -1,4 +1,3 @@
-
 import os
 import numpy as np
 import json
@@ -17,10 +16,15 @@ import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    ConfusionMatrixDisplay,
+)
 from sklearn.svm import SVC
 from sklearn.model_selection import StratifiedKFold
-from sklearn.base import clone # To reset the model in each fold
+from sklearn.base import clone  # To reset the model in each fold
 from scipy.signal import welch
 from scipy.fft import fft, fftfreq
 
@@ -39,7 +43,7 @@ MAX_IMFS = len(imfs)
 # feature_dict = {
 #     "time_features": time_features(imfs),
 # }
-  # 6 x 11
+# 6 x 11
 
 
 # def time_features(imfs: list):
@@ -63,35 +67,30 @@ MAX_IMFS = len(imfs)
 #     return feature_Vector.flatten()
 
 
-feature_names = []
-
-feature_names.append(f"RMS_")
-feature_names.append(f"P2P_")
-feature_names.append(f"Var_")
-feature_names.append(f"Skew_")
-feature_names.append(f"Kurt_")
-feature_names.append(f"Crest_")
-feature_names.append(f"Impulse_")
-
-
-# spectral features
-feature_names.append(f"TotalEnergy_")
-feature_names.append(f"Centroid_")
-feature_names.append(f"Rolloff_")
-feature_names.append(f"MaxPxx_")
-feature_names.append(f"SpectralKurtosis_")
-feature_names.append(f"MedianFreq_")
-feature_names.append(f"StdFreq_")
-
-
+feature_names = [
+    "RMS",
+    "P2P",
+    "Var",
+    "Skew",
+    "Kurt",
+    "Crest",
+    "Impulse",
+    "TotalEnergy",
+    "Centroid",
+    "Rolloff",
+    "MaxPxx",
+    "SpectralKurtosis",
+    "MedianFreq",
+    "StdFreq",
+]
 
 
 def time_features(imfs: list):
     len_imfs = len(imfs)
-    feature_vec = np.zeros((7, len_imfs))  
-    
+    feature_vec = np.zeros((7, len_imfs))
+
     for idx, x in enumerate(imfs):
-        rms = np.sqrt(np.mean(x ** 2))
+        rms = np.sqrt(np.mean(x**2))
         p2p = np.max(x) - np.min(x)
         var_val = np.var(x)
         skew_val = skew(x)
@@ -108,12 +107,10 @@ def time_features(imfs: list):
             skew_val,
             kurt_val,
             crest_factor,
-            impulse_factor
+            impulse_factor,
         ]
 
-
     return feature_vec.flatten()
-
 
 
 def spectral_features(imfs: list):
@@ -140,17 +137,18 @@ def spectral_features(imfs: list):
             np.max(Pxx),
             spectral_kurt,
             median_freq,
-            std_freq
+            std_freq,
         ]
 
     return feature_vec.flatten()
+
 
 # def hybrid_features(imfs: list):
 #     len_imfs = len(imfs)
 
 #     # Allocate enough space for all potential hybrid features.
 #     # (You can comment/uncomment freely without changing array shape)
-#     feature_Vector = np.zeros((25, len_imfs))  
+#     feature_Vector = np.zeros((25, len_imfs))
 #     # 25 = max number of hybrid features offered across all tiers
 
 #     for idx, item in enumerate(imfs):
@@ -297,10 +295,6 @@ def spectral_features(imfs: list):
 #     return feature_Vector.flatten()
 
 
-
-
-
-
 # labaledColumns = pd.DataFrame(
 #     feature_Vector,
 #     index=["skew", "kurtosis", "energy", "mean", "p2p", "std"],
@@ -320,15 +314,14 @@ def spectral_features(imfs: list):
 # print(len(healthy_Dict["x"]))
 
 
-
-
-
-
-
 def extract_features(imfs_len: int, feature_len: int):
-    feature_matrix_healthy = np.zeros((len(healthy_Dict["x"]), 2*(imfs_len * feature_len)))
-    feature_matrix_faulty = np.zeros((len(faulty_Dict["x"]), 2*(imfs_len * feature_len)))
-   # print(feature_matrix_healthy.shape)
+    feature_matrix_healthy = np.zeros(
+        (len(healthy_Dict["x"]), 2 * (imfs_len * feature_len))
+    )
+    feature_matrix_faulty = np.zeros(
+        (len(faulty_Dict["x"]), 2 * (imfs_len * feature_len))
+    )
+    # print(feature_matrix_healthy.shape)
 
     for idx, item in enumerate(healthy_Dict["x"]):
         x, y, z = item[:, 0], item[:, 1], item[:, 2]
@@ -337,9 +330,9 @@ def extract_features(imfs_len: int, feature_len: int):
 
         feature1 = time_features(imfs_signal).flatten()  # (66,)
         feature2 = spectral_features(imfs_signal).flatten()  # (66,)
-       
+
         feature = np.concatenate((feature1, feature2))
-    
+
         feature_matrix_healthy[idx] = feature
 
     for idx, item in enumerate(faulty_Dict["x"]):
@@ -353,11 +346,6 @@ def extract_features(imfs_len: int, feature_len: int):
 
         feature_matrix_faulty[idx] = feature
     return feature_matrix_healthy, feature_matrix_faulty
-    
-
-
-
-
 
 
 # fig, axs = plt.subplots(11, figsize=(10, 10))
@@ -378,43 +366,35 @@ def extract_features(imfs_len: int, feature_len: int):
 
 def apply_pipeline(model, X, threshold=0.5):
     try:
-        # Models like SVM need probability=True
         if hasattr(model, "predict_proba"):
             probs = model.predict_proba(X)[:, 1]  # probability of Faulty
         else:
-            # If model doesn't support predict_proba, fallback to normal prediction
             return model.predict(X)
 
-        # Threshold decision: classify as Faulty if P(Faulty) >= threshold
         preds = (probs >= threshold).astype(int)
         return preds
 
     except:
-        # Safety fallback
         return model.predict(X)
 
 
-
-
-
-
-def cross_validate_model(model_type="svm", n_splits=5,
-                                     imfs_len=7, feature_len=7,
-                                     faulty_threshold=0.4):
-
+def cross_validate_model(
+    model_type="svm", n_splits=5, imfs_len=7, feature_len=7, faulty_threshold=0.4
+):
 
     feature_matrix_healthy, feature_matrix_faulty = extract_features(
         imfs_len=imfs_len, feature_len=feature_len
     )
 
     X = np.concatenate((feature_matrix_healthy, feature_matrix_faulty))
-    Y = np.concatenate((
-        np.zeros(feature_matrix_healthy.shape[0]),  # Healthy
-        np.ones(feature_matrix_faulty.shape[0])    # Faulty
-    ))
+    Y = np.concatenate(
+        (
+            np.zeros(feature_matrix_healthy.shape[0]),  # Healthy
+            np.ones(feature_matrix_faulty.shape[0]),  # Faulty
+        )
+    )
 
     if model_type == "svm":
-        # probability=True needed for thresholding
         base_model = SVC(random_state=42, probability=True)
     elif model_type == "knn":
         base_model = KNeighborsClassifier()
@@ -427,7 +407,6 @@ def cross_validate_model(model_type="svm", n_splits=5,
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
     scaler = StandardScaler()
 
-    # Metrics accumulators
     total_TP = total_TN = total_FP = total_FN = 0
     accuracy_scores = []
     precision_scores = []
@@ -444,16 +423,12 @@ def cross_validate_model(model_type="svm", n_splits=5,
         model = clone(base_model)
         model.fit(X_train_scaled, y_train)
 
-        # Predict probabilities if available
         if hasattr(model, "predict_proba"):
             y_prob = model.predict_proba(X_test_scaled)[:, 1]  # probability of 'Faulty'
-            # Apply threshold
             y_pred = (y_prob >= faulty_threshold).astype(int)
         else:
-            # fallback
             y_pred = model.predict(X_test_scaled)
 
-        # Metrics
         acc = accuracy_score(y_test, y_pred)
         prec = precision_score(y_test, y_pred, zero_division=0)
         rec = recall_score(y_test, y_pred, zero_division=0)
@@ -462,7 +437,6 @@ def cross_validate_model(model_type="svm", n_splits=5,
         cm = confusion_matrix(y_test, y_pred)
         tn, fp, fn, tp = cm.ravel()
 
-        # Accumulate
         accuracy_scores.append(acc)
         precision_scores.append(prec)
         recall_scores.append(rec)
@@ -472,51 +446,56 @@ def cross_validate_model(model_type="svm", n_splits=5,
         total_FP += fp
         total_FN += fn
 
-        # Save fold CSV
-        fold_df = pd.DataFrame({
-            "Fold": [fold_idx + 1],
-            "Accuracy": [acc],
-            "Precision": [prec],
-            "Recall": [rec],
-            "F1": [f1],
-            "TP": [tp],
-            "TN": [tn],
-            "FP": [fp],
-            "FN": [fn]
-        })
+        fold_df = pd.DataFrame(
+            {
+                "Fold": [fold_idx + 1],
+                "Accuracy": [acc],
+                "Precision": [prec],
+                "Recall": [rec],
+                "F1": [f1],
+                "TP": [tp],
+                "TN": [tn],
+                "FP": [fp],
+                "FN": [fn],
+            }
+        )
         fold_df.to_csv(f"{results_dir}/fold_{fold_idx+1}.csv", index=False)
 
-        # Save fold confusion matrix image
-        disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Healthy", "Faulty"])
+        disp = ConfusionMatrixDisplay(
+            confusion_matrix=cm, display_labels=["Healthy", "Faulty"]
+        )
         disp.plot()
         plt.title(f"Confusion Matrix - Fold {fold_idx+1}")
         plt.savefig(f"{results_dir}/cm_fold_{fold_idx+1}.png")
         plt.close()
 
-    # ---- SUMMARY ----
-    summary_df = pd.DataFrame({
-        "Model Type": [model_type],
-        "Faulty Threshold": [faulty_threshold],
-        "Average Accuracy": [np.mean(accuracy_scores)],
-        "Std Accuracy": [np.std(accuracy_scores)],
-        "Average Precision": [np.mean(precision_scores)],
-        "Average Recall": [np.mean(recall_scores)],
-        "Average F1": [np.mean(f1_scores)],
-        "Total TP": [total_TP],
-        "Total TN": [total_TN],
-        "Total FP": [total_FP],
-        "Total FN": [total_FN],
-        "IMFs Length": [imfs_len],
-        "Features per IMF": [feature_len],
-        "Total Features per Sample": [imfs_len * feature_len],
-        "Feature Names": [", ".join(feature_names)],
-        "Num Folds": [n_splits],
-        "Total Samples": [len(Y)]
-    })
+    summary_df = pd.DataFrame(
+        {
+            "Model Type": [model_type],
+            "Faulty Threshold": [faulty_threshold],
+            "Average Accuracy": [np.mean(accuracy_scores)],
+            "Std Accuracy": [np.std(accuracy_scores)],
+            "Average Precision": [np.mean(precision_scores)],
+            "Average Recall": [np.mean(recall_scores)],
+            "Average F1": [np.mean(f1_scores)],
+            "Total TP": [total_TP],
+            "Total TN": [total_TN],
+            "Total FP": [total_FP],
+            "Total FN": [total_FN],
+            "IMFs Length": [imfs_len],
+            "Features per IMF": [feature_len],
+            "Total Features per Sample": [imfs_len * feature_len],
+            "Feature Names": [", ".join(feature_names)],
+            "Num Folds": [n_splits],
+            "Total Samples": [len(Y)],
+        }
+    )
     summary_df.to_csv(f"{results_dir}/summary.csv", index=False)
 
     overall_cm = np.array([[total_TN, total_FP], [total_FN, total_TP]])
-    disp = ConfusionMatrixDisplay(confusion_matrix=overall_cm, display_labels=["Healthy", "Faulty"])
+    disp = ConfusionMatrixDisplay(
+        confusion_matrix=overall_cm, display_labels=["Healthy", "Faulty"]
+    )
     disp.plot()
     plt.title(f"Overall Confusion Matrix - {model_type} Thresholded")
     plt.savefig(f"{results_dir}/cm_overall.png")
@@ -524,7 +503,6 @@ def cross_validate_model(model_type="svm", n_splits=5,
 
 
 cross_validate_model()
-
 
 
 # def train_evaluate(model:str, save_model_path:str):
@@ -541,7 +519,7 @@ cross_validate_model()
 #             test_size=0.4,
 #             random_state=42,
 #             shuffle=True
-#         )     
+#         )
 #     scaler = StandardScaler()
 #     X_train = scaler.fit_transform(X_train)
 #     X_test = scaler.transform(X_test)
@@ -564,4 +542,3 @@ cross_validate_model()
 #     plt.show()
 
 # train_evaluate("svm", "svm_model.joblib")
-            

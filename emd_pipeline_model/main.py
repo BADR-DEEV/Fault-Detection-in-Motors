@@ -1,4 +1,5 @@
 import os
+from lightgbm import LGBMClassifier
 import numpy as np
 import json
 import joblib
@@ -37,35 +38,8 @@ z = faulty_Dict["x"][0][:, 2]
 
 S = np.sqrt(x**2 + y**2 + z**2)
 
-
 imfs = sig_to_imf(S)
 MAX_IMFS = len(imfs)
-# feature_dict = {
-#     "time_features": time_features(imfs),
-# }
-# 6 x 11
-
-
-# def time_features(imfs: list):
-#     len_imfs = len(imfs)
-#     feature_Vector = np.zeros((9, len_imfs))
-#     for idx, item in enumerate(imfs):
-
-#         rms = np.sqrt(np.mean(item**2))
-
-#         feature_Vector[0][idx] = skew(item) # skewness
-#         feature_Vector[1][idx] = kurtosis(item) # kurtosis
-#         feature_Vector[2][idx] = np.sum(np.abs(item) ** 2) # energy
-#         feature_Vector[3][idx] = np.mean(item) # mean
-#         feature_Vector[4][idx] = np.ptp(item) # peak to peak
-#         feature_Vector[5][idx] = np.std(item) # std
-#         feature_Vector[6][idx] = np.sqrt(np.mean(item**2)) # rms
-#         feature_Vector[7][idx] = entropy(np.abs(item)) # entropy
-#         feature_Vector[8][idx] =np.abs(np.max(item)/rms) # crest factor
-
-
-#     return feature_Vector.flatten()
-
 
 feature_names = [
     "RMS",
@@ -142,226 +116,37 @@ def spectral_features(imfs: list):
 
     return feature_vec.flatten()
 
+def extract_features():
+    features_healthy = []
+    features_faulty = []
 
-# def hybrid_features(imfs: list):
-#     len_imfs = len(imfs)
-
-#     # Allocate enough space for all potential hybrid features.
-#     # (You can comment/uncomment freely without changing array shape)
-#     feature_Vector = np.zeros((25, len_imfs))
-#     # 25 = max number of hybrid features offered across all tiers
-
-#     for idx, item in enumerate(imfs):
-
-#         # -----------------------------
-#         # Time-Domain Pre-Calculations
-#         # -----------------------------
-#         rms = np.sqrt(np.mean(item**2))
-#         peak = np.max(np.abs(item))
-#         p2p = np.ptp(item)
-#         mean_val = np.mean(item)
-#         std_val = np.std(item)
-#         kurt = kurtosis(item)
-#         cf = peak / (rms + 1e-10)
-#         impulse_factor = peak / (mean_val + 1e-10)
-#         shape_factor = rms / (mean_val + 1e-10)
-
-#         # Envelope signal
-#         analytic = hilbert(item)
-#         envelope = np.abs(analytic)
-#         env_rms = np.sqrt(np.mean(envelope**2))
-#         env_kurt = kurtosis(envelope)
-#         env_peak = np.max(envelope)
-#         env_mean = np.mean(envelope)
-
-#         # Sample entropy
-#         try:
-#             sampen = entropy(np.abs(item) + 1e-12, base=2)
-#         except:
-#             sampen = 0
-
-#         # ------------------------------------
-#         # Frequency Domain (Welch)
-#         # ------------------------------------
-#         f, Pxx = welch(item, fs=1000, nperseg=min(1024, len(item)))
-#         total_energy = np.sum(Pxx)
-
-#         C = np.sum(f * Pxx) / (total_energy + 1e-12)
-#         gm = np.exp(np.mean(np.log(Pxx + 1e-10)))
-#         am = np.mean(Pxx)
-
-#         cumulative_sum = np.cumsum(Pxx)
-#         rolloff = f[np.where(cumulative_sum >= 0.85 * total_energy)[0][0]]
-
-#         spectral_kurt = kurtosis(Pxx)
-#         spectral_flat = gm / (am + 1e-12)
-#         spectral_max = np.max(Pxx)
-#         median_freq = np.median(f)
-
-#         # Band energies (example split)
-#         low_band = np.sum(Pxx[(f >= 0) & (f < 200)])
-#         mid_band = np.sum(Pxx[(f >= 200) & (f < 500)])
-#         high_band = np.sum(Pxx[(f >= 500)])
-
-#         # ------------------------------------------------------------
-#         # --------- S-TIER HYBRID FEATURES (highest recall) ----------
-#         # ------------------------------------------------------------
-
-#         # 0 Envelope RMS
-#         # feature_Vector[0][idx] = env_rms
-
-#         # 1 Envelope Kurtosis
-#         # feature_Vector[1][idx] = env_kurt
-
-#         # 2 Envelope Peak
-#         # feature_Vector[2][idx] = env_peak
-
-#         # 3 High Frequency Band Energy
-#         # feature_Vector[3][idx] = high_band
-
-#         # 4 Spectral Kurtosis
-#         # feature_Vector[4][idx] = spectral_kurt
-
-#         # 5 Spectral Centroid
-#         # feature_Vector[5][idx] = C
-
-#         # 6 Max PSD amplitude
-#         # feature_Vector[6][idx] = spectral_max
-
-#         # 7 Time Kurtosis
-#         # feature_Vector[7][idx] = kurt
-
-#         # 8 Crest Factor
-#         # feature_Vector[8][idx] = cf
-
-#         # 9 Sample Entropy
-#         # feature_Vector[9][idx] = sampen
-
-
-#         # ------------------------------------------------------------
-#         # --------- A-TIER HYBRID FEATURES (balanced) ----------------
-#         # ------------------------------------------------------------
-
-#         # 10 RMS
-#         # feature_Vector[10][idx] = rms
-
-#         # 11 Standard Deviation
-#         # feature_Vector[11][idx] = std_val
-
-#         # 12 Peak-to-Peak
-#         # feature_Vector[12][idx] = p2p
-
-#         # 13 Spectral Flatness
-#         # feature_Vector[13][idx] = spectral_flat
-
-#         # 14 Low Band Energy
-#         # feature_Vector[14][idx] = low_band
-
-#         # 15 Mid Band Energy
-#         # feature_Vector[15][idx] = mid_band
-
-#         # 16 Median Frequency
-#         # feature_Vector[16][idx] = median_freq
-
-#         # 17 Impulse Factor
-#         # feature_Vector[17][idx] = impulse_factor
-
-#         # 18 Shape Factor
-#         # feature_Vector[18][idx] = shape_factor
-
-
-#         # ------------------------------------------------------------
-#         # --------- B-TIER HYBRID FEATURES (extra optional) ----------
-#         # ------------------------------------------------------------
-
-#         # 19 Envelope Mean
-#         # feature_Vector[19][idx] = env_mean
-
-#         # 20 Mean of Time Signal
-#         # feature_Vector[20][idx] = mean_val
-
-#         # 21 Frequency Rolloff
-#         # feature_Vector[21][idx] = rolloff
-
-#         # 22 Normalized High/Total Energy Ratio
-#         # feature_Vector[22][idx] = high_band / (total_energy + 1e-12)
-
-#         # 23 Autocorrelation Lag-1
-#         # feature_Vector[23][idx] = np.correlate(item, item, mode='full')[len(item)-1] / len(item)
-
-#         # 24 Dominant Frequency
-#         # feature_Vector[24][idx] = f[np.argmax(Pxx)]
-
-#     return feature_Vector.flatten()
-
-
-# labaledColumns = pd.DataFrame(
-#     feature_Vector,
-#     index=["skew", "kurtosis", "energy", "mean", "p2p", "std"],
-#     columns=[
-#         "imf1",
-#         "imf2",
-#         "imf3",
-#         "imf4",
-#         "imf5",
-#         "imf6",
-#         "imf7",
-#     ],
-# )
-# labaledColumns.to_csv("feature_fault.csv")
-
-
-# print(len(healthy_Dict["x"]))
-
-
-def extract_features(imfs_len: int, feature_len: int):
-    feature_matrix_healthy = np.zeros(
-        (len(healthy_Dict["x"]), 2 * (imfs_len * feature_len))
-    )
-    feature_matrix_faulty = np.zeros(
-        (len(faulty_Dict["x"]), 2 * (imfs_len * feature_len))
-    )
-    # print(feature_matrix_healthy.shape)
-
-    for idx, item in enumerate(healthy_Dict["x"]):
+    for item in healthy_Dict["x"]:
         x, y, z = item[:, 0], item[:, 1], item[:, 2]
         item_mag = np.sqrt(x**2 + y**2 + z**2)
         imfs_signal = sig_to_imf(item_mag)
 
-        feature1 = time_features(imfs_signal).flatten()  # (66,)
-        feature2 = spectral_features(imfs_signal).flatten()  # (66,)
+        feature1 = time_features(imfs_signal)
+        feature2 = spectral_features(imfs_signal)
+        feature3 = time_features([item_mag])  # wrap in list for time_features
 
-        feature = np.concatenate((feature1, feature2))
+        feature = np.concatenate((feature1, feature2, feature3))
+        features_healthy.append(feature)
 
-        feature_matrix_healthy[idx] = feature
-
-    for idx, item in enumerate(faulty_Dict["x"]):
+    for item in faulty_Dict["x"]:
         x, y, z = item[:, 0], item[:, 1], item[:, 2]
         item_mag = np.sqrt(x**2 + y**2 + z**2)
         imfs_signal = sig_to_imf(item_mag)
 
-        feature1 = time_features(imfs_signal).flatten()  # (66,)
-        feature2 = spectral_features(imfs_signal).flatten()  # (66,)
-        feature = np.concatenate((feature1, feature2))
-
-        feature_matrix_faulty[idx] = feature
-    return feature_matrix_healthy, feature_matrix_faulty
+        feature1 = time_features(imfs_signal)
+        feature2 = spectral_features(imfs_signal)
+        feature3 = time_features([item_mag])
 
 
-# fig, axs = plt.subplots(11, figsize=(10, 10))
+        feature = np.concatenate((feature1, feature2, feature3))
+        features_faulty.append(feature)
 
-# axs[0].plot(S)
-# axs[0].set_title("Original Vibration Signal S(t) magnitude H1.mat")
+    return np.array(features_healthy), np.array(features_faulty)
 
-# axs[1].plot(healthy_Dict["x"][0])
-# axs[1].set_title(healthy_Dict["fileName"][0])
-
-# for idx, item in enumerate(imfs):
-#     axs[idx].plot(imfs[idx])
-#     axs[idx].set_title(f"IMF {idx+1}")
-
-# plt.tight_layout()
-# plt.show()
 
 
 def apply_pipeline(model, X, threshold=0.5):
@@ -379,11 +164,10 @@ def apply_pipeline(model, X, threshold=0.5):
 
 
 def cross_validate_model(
-    model_type="svm", n_splits=5, imfs_len=7, feature_len=7, faulty_threshold=0.4
+    model_type="rf", n_splits=5, imfs_len=7, feature_len=7, faulty_threshold=0.4
 ):
 
     feature_matrix_healthy, feature_matrix_faulty = extract_features(
-        imfs_len=imfs_len, feature_len=feature_len
     )
 
     X = np.concatenate((feature_matrix_healthy, feature_matrix_faulty))
@@ -398,10 +182,14 @@ def cross_validate_model(
         base_model = SVC(random_state=42, probability=True)
     elif model_type == "knn":
         base_model = KNeighborsClassifier()
+    elif model_type == "lgbm":
+        base_model = LGBMClassifier()
+    elif model_type == "rf":
+        base_model = RandomForestClassifier()
     else:
         base_model = LinearDiscriminantAnalysis()
 
-    results_dir = f"Results/{model_type}/H2"
+    results_dir = f"Results/test_enviorment/{model_type}/H1"
     os.makedirs(results_dir, exist_ok=True)
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)

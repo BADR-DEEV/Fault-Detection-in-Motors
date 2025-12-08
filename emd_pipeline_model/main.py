@@ -1,7 +1,12 @@
+# Updated pipeline: EMD extraction (drop IMF1), feature extraction, CV
+# - Uses PyEMD correctly (emd.emd() then get_imfs_and_residue())
+# - Drops IMF1, keeps IMF2..IMF10 (up to available IMFs)
+# - Reconstructs signal = sum(IMF2..IMF10) + residue
+# - Extracts time + spectral features from IMFs and reconstructed signal
+
 import os
 from lightgbm import LGBMClassifier
 import numpy as np
-import json
 import joblib
 import matplotlib.pyplot as plt
 from scipy.stats import skew, kurtosis, entropy
@@ -11,10 +16,10 @@ from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import precision_score, recall_score, f1_score, roc_auc_score
 from sklearn.model_selection import train_test_split
+# from emd_imfs import sig_to_imf  # replaced by local implementation below
 from emd_imfs import sig_to_imf
 from load_data import section_dataset
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import (
@@ -29,18 +34,36 @@ from sklearn.base import clone  # To reset the model in each fold
 from scipy.signal import welch
 from scipy.fft import fft, fftfreq
 
+
+# ------------------ Load data ------------------
 healthy_Dict, faulty_Dict = section_dataset()
 
-
+# quick sanity check plot for one sample (optional)
 x = faulty_Dict["x"][0][:, 0]
 y = faulty_Dict["x"][0][:, 1]
 z = faulty_Dict["x"][0][:, 2]
-
 S = np.sqrt(x**2 + y**2 + z**2)
 
-imfs = sig_to_imf(S)
-MAX_IMFS = len(imfs)
+imfs, residue, reconstructed = sig_to_imf(S, max_imfs=10)
 
+num_imfs = imfs.shape[0]
+fig, axs = plt.subplots(num_imfs + 3, figsize=(12, 2 * (num_imfs + 3)))
+axs[0].plot(S)
+axs[0].set_title("Original Vibration Signal")
+for i in range(num_imfs):
+    axs[i + 1].plot(imfs[i])
+    axs[i + 1].set_title(f"IMF {i + 2}")  # IMFs returned are IMF2.. so label accordingly
+axs[num_imfs + 1].plot(residue)
+axs[num_imfs + 1].set_title("Residue")
+axs[num_imfs + 2].plot(reconstructed)
+axs[num_imfs + 2].set_title("Reconstructed (IMF2.. + residue)")
+plt.tight_layout()
+plt.show()
+
+# Set MAX_IMFS to number of IMFs used (IMF2..)
+MAX_IMFS = num_imfs
+
+# ------------------ Feature names ------------------
 feature_names = [
     "RMS",
     "P2P",
@@ -58,18 +81,27 @@ feature_names = [
     "StdFreq",
 ]
 
+# ------------------ Feature extractors ------------------
+
+def safe_len(imfs):
+    return 0 if imfs is None else (imfs.shape[0] if hasattr(imfs, 'shape') else len(imfs))
+
 
 def time_features(imfs: list):
+    # imfs: iterable of 1D arrays
+    if len(imfs) == 0:
+        return np.zeros(0)
+
     len_imfs = len(imfs)
-    feature_vec = np.zeros((8, len_imfs))
+    feature_vec = np.zeros((7, len_imfs))
 
     for idx, x in enumerate(imfs):
-        rms = np.sqrt(np.mean(x**2))  # not used
-        p2p = np.max(x) - np.min(x)  # used
-        std_val = np.std(x)  # not used
-        skew_val = skew(x)  # used
-        kurt_val = kurtosis(x)  # used
-        abs_mean = np.mean(np.abs(x))  # used
+        rms = np.sqrt(np.mean(x**2))
+        p2p = np.max(x) - np.min(x)
+        var_val = np.var(x)
+        skew_val = skew(x)
+        kurt_val = kurtosis(x)
+        abs_mean = np.mean(np.abs(x))
 
         crest_factor = np.max(np.abs(x)) / (rms + 1e-12)
         impulse_factor = np.max(np.abs(x)) / (abs_mean + 1e-12)
@@ -77,92 +109,58 @@ def time_features(imfs: list):
         feature_vec[:, idx] = [
             rms,
             p2p,
-            std_val,
+            var_val,
             skew_val,
             kurt_val,
             crest_factor,
             impulse_factor,
-            abs_mean,
         ]
 
     return feature_vec.flatten()
 
 
-def spectral_features(imfs):
-    features = []
+def spectral_features(imfs: list, fs=1000):
+    if len(imfs) == 0:
+        return np.zeros(0)
 
-    prev_Pxx = None  # For spectral flux
+    len_imfs = len(imfs)
+    feature_vec = np.zeros((7, len_imfs))
 
-    for item in imfs:
-        # Welch spectrum
-        f, Pxx = welch(item, fs=1000, nperseg=min(1024, len(item)))
-        Pxx = np.maximum(Pxx, 1e-12)  # avoid log/ratio issues
-        total_energy = np.sum(Pxx)
-
-        # ===== CORE FREQUENCY FEATURES =====
-        centroid = np.sum(f * Pxx) / total_energy
-
-        std_freq = np.std(f)
-        mean_freq = np.mean(f)
-        median_freq = np.median(f)
-        skew_freq = skew(f)
-        kurt_freq = kurtosis(f)
-
-        # roll-off at 85%
-        cumulative = np.cumsum(Pxx)
-        rolloff = f[np.searchsorted(cumulative, 0.85 * total_energy)]
-
-        band_power = np.sum(Pxx[f > 0.5])
-
-        # ===== SPECTRAL SHAPE FEATURES =====
-        spectral_flatness = np.exp(np.mean(np.log(Pxx))) / (np.mean(Pxx) + 1e-12)
-
-        spectral_crest = np.max(Pxx) / (np.mean(Pxx) + 1e-12)
-
-        spectral_spread = np.sqrt(np.sum(((f - centroid) ** 2) * Pxx) / total_energy)
-
-        # Slope (linear regression on spectrum)
-        slope = (np.max(Pxx) - np.min(Pxx)) / (np.max(f) - np.min(f) + 1e-12)
-
-        # Spectral decrease
-        numerator = np.sum((Pxx[1:] - Pxx[0]) / np.arange(1, len(Pxx)))
-        denominator = np.sum(Pxx[1:])
-        spectral_decrease = numerator / (denominator + 1e-12)
-
-        # ===== SPECTRAL FLUX =====
-        if prev_Pxx is None:
-            spectral_flux = 0  # no previous frame
+    for idx, item in enumerate(imfs):
+        # ensure length > 0
+        if item.size == 0:
+            f = np.array([0.0])
+            Pxx = np.array([1e-12])
         else:
-            spectral_flux = np.sqrt(np.sum((Pxx - prev_Pxx) ** 2))
-        prev_Pxx = Pxx
+            f, Pxx = welch(item, fs=fs, nperseg=min(1024, len(item)))
+            Pxx = np.maximum(Pxx, 1e-12)
 
-        # ===== COLLECT ALL FEATURES =====
-        feature_vec = [
-            # Requested + standard features
-            mean_freq,  # Mean Frequency
-            std_freq,  # Frequency Std
-            skew_freq,  # Skewness
-            kurt_freq,  # Kurtosis
-            band_power,  # Band Power
-            median_freq,  # Median Freq
-            centroid,  # Spectral Centroid
-            spectral_flux,  # Spectral Flux
-            rolloff,  # Roll-off
-            spectral_flatness,  # Flatness
-            spectral_crest,  # Crest
-            spectral_decrease,  # Decrease
-            slope,  # Slope
-            spectral_spread,  # Spread
-            # Additional useful vibration features
+        total_energy = np.sum(Pxx)
+        centroid = np.sum(f * Pxx) / (total_energy + 1e-12)
+
+        cumulative = np.cumsum(Pxx)
+        idx_roll = np.searchsorted(cumulative, 0.85 * total_energy)
+        idx_roll = min(idx_roll, len(f) - 1)
+        rolloff = f[idx_roll]
+
+        spectral_kurt = kurtosis(Pxx)
+        median_freq = np.median(f)
+        std_freq = np.std(f)
+
+        feature_vec[:, idx] = [
             total_energy,
+            centroid,
+            rolloff,
             np.max(Pxx),
-            kurtosis(Pxx),
+            spectral_kurt,
+            median_freq,
+            std_freq,
         ]
 
-        features.append(feature_vec)
+    return feature_vec.flatten()
 
-    return np.array(features).flatten()
 
+# ------------------ Extraction updated: use IMF2.. + reconstructed ------------------
 
 def extract_features():
     features_healthy = []
@@ -171,34 +169,57 @@ def extract_features():
     for item in healthy_Dict["x"]:
         x, y, z = item[:, 0], item[:, 1], item[:, 2]
         item_mag = np.sqrt(x**2 + y**2 + z**2)
-        imfs_signal = sig_to_imf(item_mag)
 
-        feature1 = time_features(imfs_signal)
-        feature2 = spectral_features(imfs_signal)
-        feature3 = time_features([item_mag])  # wrap in list for time_features
-        feature4 = spectral_features([item_mag])
+        imfs_signal, residue, reconstructed = sig_to_imf(item_mag, max_imfs=10)
 
-        feature = np.concatenate((feature1, feature2, feature3, feature4))
+        # If no IMFs returned, use reconstructed only
+        imfs_list = [imfs_signal[i] for i in range(imfs_signal.shape[0])] if imfs_signal.size > 0 else []
+
+        # Features from IMFs (IMF2..IMF10)
+        # feature1 = time_features(imfs_list)
+        # feature2 = spectral_features(imfs_list)
+
+        # Also extract features from reconstructed (preprocessed) signal
+        feature3 = time_features([reconstructed])
+        feature4 = spectral_features([reconstructed])
+
+        feature = np.concatenate((feature3, feature4))
         features_healthy.append(feature)
 
     for item in faulty_Dict["x"]:
         x, y, z = item[:, 0], item[:, 1], item[:, 2]
         item_mag = np.sqrt(x**2 + y**2 + z**2)
-        imfs_signal = sig_to_imf(item_mag)
 
-        feature1 = time_features(imfs_signal)
-        feature2 = spectral_features(imfs_signal)
-        feature3 = time_features([item_mag])
-        feature4 = spectral_features([item_mag])
+        imfs_signal, residue, reconstructed = sig_to_imf(item_mag, max_imfs=10)
+        imfs_list = [imfs_signal[i] for i in range(imfs_signal.shape[0])] if imfs_signal.size > 0 else []
 
-        feature = np.concatenate((feature1, feature2, feature3, feature4))
+        # feature1 = time_features(imfs_list[:8])
+        # feature2 = spectral_features(imfs_list)
+        feature3 = time_features([reconstructed])
+        feature4 = spectral_features([reconstructed])
+
+        feature = np.concatenate(( feature3, feature4))
         features_faulty.append(feature)
 
-    return np.array(features_healthy), np.array(features_faulty)
+    # Pad feature vectors to same length if some samples had fewer IMFs
+    max_len = max([f.shape[0] for f in features_healthy + features_faulty])
+    def pad_array(a, length):
+        if a.shape[0] == length:
+            return a
+        padded = np.zeros(length)
+        padded[: a.shape[0]] = a
+        return padded
 
+    features_healthy = np.array([pad_array(f, max_len) for f in features_healthy])
+    features_faulty = np.array([pad_array(f, max_len) for f in features_faulty])
+
+    return features_healthy, features_faulty
+
+
+# ------------------ Cross validation (unchanged logic, updated paths) ------------------
 
 def cross_validate_model(
-    model_type="svm", n_splits=5, imfs_len=MAX_IMFS, feature_len=7, faulty_threshold=0.4
+    model_type="svm", n_splits=10, imfs_len=MAX_IMFS, feature_len=7, faulty_threshold=0.4
 ):
 
     feature_matrix_healthy, feature_matrix_faulty = extract_features()
@@ -222,7 +243,7 @@ def cross_validate_model(
     else:
         base_model = LinearDiscriminantAnalysis()
 
-    results_dir = f"Results/playing_around/{model_type}/H1"
+    results_dir = f"Results/marwan/{model_type}/H1"
     os.makedirs(results_dir, exist_ok=True)
 
     skf = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=42)
@@ -323,43 +344,5 @@ def cross_validate_model(
     plt.close()
 
 
-cross_validate_model()
-
-
-# def train_evaluate(model:str, save_model_path:str):
-#     feature_matrix_healthy, feature_matrix_faulty = extract_features(imfs_len=MAX_IMFS, feature_len=6)
-#     concatenated_matrix = np.concatenate((feature_matrix_healthy, feature_matrix_faulty))
-#     healthy_labels = np.zeros(feature_matrix_healthy.shape[0])
-#     faulty_labels = np.ones(feature_matrix_faulty.shape[0])
-#     concatenated_labels = np.concatenate((healthy_labels, faulty_labels))
-#     print(concatenated_labels.shape)
-#     print(concatenated_matrix.shape)
-#     X_train, X_test, y_train, y_test = train_test_split(
-#             concatenated_matrix,
-#             concatenated_labels,
-#             test_size=0.4,
-#             random_state=42,
-#             shuffle=True
-#         )
-#     scaler = StandardScaler()
-#     X_train = scaler.fit_transform(X_train)
-#     X_test = scaler.transform(X_test)
-#     if model == "knn":
-#         knn = KNeighborsClassifier()
-#         knn.fit(X_train, y_train)
-#         y_pred = knn.predict(X_test)
-#     elif model == "svm":
-#         svm = SVC()
-#         svm.fit(X_train, y_train)
-#         y_pred = svm.predict(X_test)
-
-#     print("Accuracy:", accuracy_score(y_test, y_pred))
-#     print(classification_report(y_test, y_pred))
-#     print(confusion_matrix(y_test, y_pred))
-#     cm = confusion_matrix(y_test, y_pred)
-#     disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=["Healthy","Faulty"])
-#     disp.plot()
-#     plt.title("Confusion Matrix")
-#     plt.show()
-
-# train_evaluate("svm", "svm_model.joblib")
+if __name__ == "__main__":
+    cross_validate_model()

@@ -1,0 +1,9 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/3544663784_1709909827_223132457.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_125860772_1985610560.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_1839128356_3645677656.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_2904568826_2445193493.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_2967038216_689118038.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_292275389_2260168531.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_3100442825_1562899802.mp4'
+file 'file:C:/Users/Lenovo/Desktop/Grad/emd_pipeline_model/manimations/media/videos/main/1080p60/partial_movie_files/Conv1DExplainer/260329756_2408024828_2634574519.mp4'

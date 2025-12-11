@@ -22,7 +22,7 @@ def sig_to_imf(sig, max_imfs=10):
 
     # ❗ DROP IMF1 (noisiest)
     if imfs.shape[0] > 1:
-        imfs_filtered = imfs[:]      # IMF2 → IMF10
+        imfs_filtered = imfs[1:]      # IMF2 → IMF10
     else:
         imfs_filtered = np.array([])
 

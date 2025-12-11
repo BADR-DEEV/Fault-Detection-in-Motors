@@ -12,6 +12,8 @@ Dataset/
 data/
 *.mat
 *.csv
+*.mp4
+.svg
 !small_config.csv   # (only allow if needed)
 
 # Models

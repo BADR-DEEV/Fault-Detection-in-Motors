@@ -1,0 +1,24 @@
+# Data Science Core
+numpy
+pandas
+scipy
+scikit-learn
+matplotlib
+seaborn
+
+# Deep Learning & XAI
+torch
+torchvision
+captum       # For Saliency Maps
+EMD-signal   # Or PyEMD, whichever you used
+
+# Hardware & Embedded
+pyftdi       # For FT232H communication
+adafruit-blinka
+adafruit-circuitpython-adxl34x # Basic drivers (might need custom SPI code for 357)
+m2cgen       # For converting models to C
+
+# Dashboard
+streamlit
+plotly
+lightgbm

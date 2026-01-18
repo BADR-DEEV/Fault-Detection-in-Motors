@@ -1,0 +1,16 @@
+Model: MultiChannelCNN
+Date: 20260118-205008
+Accuracy: 0.9978
+------------------------------
+                         precision    recall  f1-score   support
+
+                 normal       0.99      1.00      0.99       147
+horizontal-misalignment       0.98      1.00      0.99       591
+  vertical-misalignment       1.00      0.99      1.00       903
+               overhang       1.00      1.00      1.00      1539
+              underhang       1.00      1.00      1.00      1674
+              imbalance       1.00      1.00      1.00       999
+
+               accuracy                           1.00      5853
+              macro avg       0.99      1.00      1.00      5853
+           weighted avg       1.00      1.00      1.00      5853

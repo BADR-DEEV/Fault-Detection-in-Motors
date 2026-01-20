@@ -372,7 +372,7 @@ def run_paper_cv(healthy, faulty):
     df = pd.DataFrame(records)
     df = df.sort_values(by=["AvgF1","AvgAccuracy"], ascending=False).reset_index(drop=True)
     df.to_csv(os.path.join(RESULTS_DIR, "full_model_feature_comparison.csv"), index=False)
-    # joblib.dump(df, os.path.join(RESULTS_DIR, "full_model_feature_comparison.joblib"))
+    joblib.dump(df, os.path.join(RESULTS_DIR, "full_model_feature_comparison.joblib"))
     return df
 
 # ---------------- Main ----------------

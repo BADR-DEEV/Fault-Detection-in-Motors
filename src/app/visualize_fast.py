@@ -8,11 +8,11 @@ from scipy.stats import kurtosis, skew
 # ==========================================
 # 1. CONFIGURATION
 # ==========================================
-MODEL_FILENAME = "cnn_acc99.8_20260118-205008.pth" # <--- CHECK THIS NAME
+MODEL_FILENAME = "cnn_underhang_acc100.0_20260125-115627.pth" # <--- CHECK THIS NAME
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 MODEL_PATH = os.path.join(PROJECT_ROOT, "models", MODEL_FILENAME)
-DATA_CACHE_PATH = os.path.join(PROJECT_ROOT, "data", "vis_cache_2.pt")
+DATA_CACHE_PATH = os.path.join(PROJECT_ROOT, "data", "vis_cache_3axis.pt")
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # Actual Sampling Rate (50000 / 12)
@@ -90,7 +90,7 @@ def compute_gradcam(model, input_tensor, target_class):
 # ==========================================
 print("1. Loading Cached Data...")
 if not os.path.exists(DATA_CACHE_PATH):
-    print("Error: Run 'src/utils/cache_data.py' first!")
+    print("Error: Run 'src/utils/cache_data_2.py' first!")
     exit()
     
 cache = torch.load(DATA_CACHE_PATH)
@@ -100,7 +100,7 @@ class_names = cache['class_names']
 
 print("2. Loading Model...")
 checkpoint = torch.load(MODEL_PATH, map_location=DEVICE)
-model = MultiChannelCNN(num_classes=len(class_names), input_channels=6).to(DEVICE)
+model = MultiChannelCNN(num_classes=len(class_names), input_channels=3).to(DEVICE)
 model.load_state_dict(checkpoint['model_state_dict'])
 model.eval()
 # ==========================================
@@ -108,8 +108,7 @@ model.eval()
 # ==========================================
 found_classes = set()
 
-# Defined by the MAFAULDA Paper
-MIN_HZ = 10.0  # ~600 RPM
+# Defined by the MAFAULDA Paper = 10.0  # ~600 RPM
 MAX_HZ = 65.0  # ~3900 RPM (Paper max is 3686, we give a little buffer)
 
 for i in range(len(X_data)):
@@ -216,7 +215,7 @@ for i in range(len(X_data)):
 
 
 
-#     import os
+# import os
 # import torch
 # import torch.nn as nn
 # import numpy as np
@@ -237,7 +236,7 @@ for i in range(len(X_data)):
 #     PROJECT_ROOT = os.getcwd()
 
 # MODEL_PATH = os.path.join(PROJECT_ROOT, "models", MODEL_FILENAME)
-# DATA_CACHE_PATH = os.path.join(PROJECT_ROOT, "data", "vis_cache.pt")
+# DATA_CACHE_PATH = os.path.join(PROJECT_ROOT, "data", "vis_cache_2.pt")
 # DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # # FIX: Precision Sampling Rate based on text (50kHz / 12)

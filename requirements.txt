@@ -22,3 +22,6 @@ m2cgen       # For converting models to C
 streamlit
 plotly
 lightgbm
+streamlit
+uvicorn
+

@@ -19,7 +19,7 @@ adafruit-circuitpython-adxl34x # Basic drivers (might need custom SPI code for 3
 m2cgen       # For converting models to C
 
 # Dashboard
-streamlit
+
 plotly
 lightgbm
 streamlit

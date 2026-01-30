@@ -2,7 +2,7 @@
 
 import torch
 
-from training.train_mul_cnn import MultiChannelCNN
+from notebooks.train_mul_cnn import MultiChannelCNN
 def load_trained_model(path_to_pth):
     checkpoint = torch.load(path_to_pth)
     

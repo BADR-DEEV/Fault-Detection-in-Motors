@@ -108,7 +108,8 @@ model.eval()
 # ==========================================
 found_classes = set()
 
-# Defined by the MAFAULDA Paper = 10.0  # ~600 RPM
+# Defined by the MAFAULDA Paper
+MIN_HZ = 10.0  # ~600 RPM
 MAX_HZ = 65.0  # ~3900 RPM (Paper max is 3686, we give a little buffer)
 
 for i in range(len(X_data)):

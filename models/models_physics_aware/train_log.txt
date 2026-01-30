@@ -1,0 +1,41 @@
+2026-01-26 18:26:09,521 | INFO | Found existing metadata.csv. Using cached structure.
+2026-01-26 18:26:10,711 | INFO | Starting Training (Physics Aware)...
+2026-01-26 18:26:15,242 | INFO | Epoch 1 | Loss: 1.2682 | Val Acc: 0.5780
+2026-01-26 18:26:19,749 | INFO | Epoch 2 | Loss: 0.9355 | Val Acc: 0.5601
+2026-01-26 18:26:23,961 | INFO | Epoch 3 | Loss: 0.7555 | Val Acc: 0.6931
+2026-01-26 18:26:28,261 | INFO | Epoch 4 | Loss: 0.6608 | Val Acc: 0.7008
+2026-01-26 18:26:32,340 | INFO | Epoch 5 | Loss: 0.6200 | Val Acc: 0.6777
+2026-01-26 18:26:36,417 | INFO | Epoch 6 | Loss: 0.5795 | Val Acc: 0.6650
+2026-01-26 18:26:40,378 | INFO | Epoch 7 | Loss: 0.5482 | Val Acc: 0.7187
+2026-01-26 18:26:44,575 | INFO | Epoch 8 | Loss: 0.5336 | Val Acc: 0.6726
+2026-01-26 18:26:48,699 | INFO | Epoch 9 | Loss: 0.4949 | Val Acc: 0.7084
+2026-01-26 18:26:52,792 | INFO | Epoch 10 | Loss: 0.4808 | Val Acc: 0.6650
+2026-01-26 18:26:57,180 | INFO | Epoch 11 | Loss: 0.4437 | Val Acc: 0.7954
+2026-01-26 18:27:01,335 | INFO | Epoch 12 | Loss: 0.4395 | Val Acc: 0.7468
+2026-01-26 18:27:05,336 | INFO | Epoch 13 | Loss: 0.4400 | Val Acc: 0.7187
+2026-01-26 18:27:09,831 | INFO | Epoch 14 | Loss: 0.4608 | Val Acc: 0.7084
+2026-01-26 18:27:14,397 | INFO | Epoch 15 | Loss: 0.4203 | Val Acc: 0.7468
+2026-01-26 18:27:18,911 | INFO | Epoch 16 | Loss: 0.4205 | Val Acc: 0.7468
+2026-01-26 18:27:23,194 | INFO | Epoch 17 | Loss: 0.3671 | Val Acc: 0.7417
+2026-01-26 18:27:27,719 | INFO | Epoch 18 | Loss: 0.3760 | Val Acc: 0.7570
+2026-01-26 18:27:31,787 | INFO | Epoch 19 | Loss: 0.3933 | Val Acc: 0.7519
+2026-01-26 18:27:35,875 | INFO | Epoch 20 | Loss: 0.3699 | Val Acc: 0.7494
+2026-01-26 18:27:39,840 | INFO | Epoch 21 | Loss: 0.3571 | Val Acc: 0.7570
+2026-01-26 18:27:44,155 | INFO | Epoch 22 | Loss: 0.3295 | Val Acc: 0.8184
+2026-01-26 18:27:48,708 | INFO | Epoch 23 | Loss: 0.4190 | Val Acc: 0.7596
+2026-01-26 18:27:53,163 | INFO | Epoch 24 | Loss: 0.3509 | Val Acc: 0.8568
+2026-01-26 18:27:57,708 | INFO | Epoch 25 | Loss: 0.3688 | Val Acc: 0.7954
+2026-01-26 18:27:57,720 | INFO | 
+              precision    recall  f1-score   support
+
+      Normal       0.33      0.77      0.47        13
+   Imbalance       0.70      0.83      0.76        75
+    Misalign       0.77      0.92      0.84        96
+     Bearing       0.96      0.73      0.83       207
+
+    accuracy                           0.80       391
+   macro avg       0.69      0.81      0.72       391
+weighted avg       0.84      0.80      0.80       391
+
+2026-01-26 18:27:57,720 | INFO | Generating Saliency Maps...
+2026-01-26 18:27:59,409 | INFO | Done.

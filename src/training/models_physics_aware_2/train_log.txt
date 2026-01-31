@@ -1,0 +1,51 @@
+2026-01-31 16:41:06,243 | INFO | Found existing metadata.csv. Using cached structure.
+2026-01-31 16:41:07,399 | INFO | Starting Training (Physics Aware)...
+2026-01-31 16:41:11,736 | INFO | Epoch 1 | Loss: 1.2339 | Val Acc: 0.4066
+2026-01-31 16:41:15,904 | INFO | Epoch 2 | Loss: 1.0274 | Val Acc: 0.5831
+2026-01-31 16:41:19,954 | INFO | Epoch 3 | Loss: 0.8826 | Val Acc: 0.6905
+2026-01-31 16:41:23,987 | INFO | Epoch 4 | Loss: 0.7709 | Val Acc: 0.7570
+2026-01-31 16:41:28,110 | INFO | Epoch 5 | Loss: 0.6986 | Val Acc: 0.8031
+2026-01-31 16:41:32,189 | INFO | Epoch 6 | Loss: 0.6695 | Val Acc: 0.7570
+2026-01-31 16:41:36,527 | INFO | Epoch 7 | Loss: 0.6521 | Val Acc: 0.7749
+2026-01-31 16:41:40,491 | INFO | Epoch 8 | Loss: 0.6255 | Val Acc: 0.8031
+2026-01-31 16:41:44,571 | INFO | Epoch 9 | Loss: 0.5996 | Val Acc: 0.8312
+2026-01-31 16:41:48,724 | INFO | Epoch 10 | Loss: 0.5707 | Val Acc: 0.8465
+2026-01-31 16:41:52,940 | INFO | Epoch 11 | Loss: 0.5713 | Val Acc: 0.8440
+2026-01-31 16:41:56,984 | INFO | Epoch 12 | Loss: 0.5632 | Val Acc: 0.7826
+2026-01-31 16:42:01,391 | INFO | Epoch 13 | Loss: 0.5384 | Val Acc: 0.8747
+2026-01-31 16:42:05,527 | INFO | Epoch 14 | Loss: 0.5023 | Val Acc: 0.8414
+2026-01-31 16:42:09,606 | INFO | Epoch 15 | Loss: 0.4773 | Val Acc: 0.8568
+2026-01-31 16:42:13,891 | INFO | Epoch 16 | Loss: 0.5173 | Val Acc: 0.8824
+2026-01-31 16:42:17,941 | INFO | Epoch 17 | Loss: 0.5170 | Val Acc: 0.8926
+2026-01-31 16:42:22,023 | INFO | Epoch 18 | Loss: 0.4593 | Val Acc: 0.8900
+2026-01-31 16:42:26,086 | INFO | Epoch 19 | Loss: 0.4687 | Val Acc: 0.8645
+2026-01-31 16:42:30,142 | INFO | Epoch 20 | Loss: 0.4586 | Val Acc: 0.8824
+2026-01-31 16:42:34,573 | INFO | Epoch 21 | Loss: 0.4472 | Val Acc: 0.8798
+2026-01-31 16:42:38,824 | INFO | Epoch 22 | Loss: 0.4121 | Val Acc: 0.9079
+2026-01-31 16:42:42,975 | INFO | Epoch 23 | Loss: 0.4338 | Val Acc: 0.8798
+2026-01-31 16:42:46,972 | INFO | Epoch 24 | Loss: 0.4084 | Val Acc: 0.8338
+2026-01-31 16:42:51,043 | INFO | Epoch 25 | Loss: 0.4301 | Val Acc: 0.8824
+2026-01-31 16:42:55,030 | INFO | Epoch 26 | Loss: 0.4327 | Val Acc: 0.8542
+2026-01-31 16:42:59,151 | INFO | Epoch 27 | Loss: 0.4172 | Val Acc: 0.8977
+2026-01-31 16:43:03,177 | INFO | Epoch 28 | Loss: 0.4136 | Val Acc: 0.9028
+2026-01-31 16:43:07,456 | INFO | Epoch 29 | Loss: 0.4169 | Val Acc: 0.8747
+2026-01-31 16:43:11,743 | INFO | Epoch 30 | Loss: 0.4443 | Val Acc: 0.8900
+2026-01-31 16:43:15,779 | INFO | Epoch 31 | Loss: 0.3751 | Val Acc: 0.8721
+2026-01-31 16:43:19,813 | INFO | Epoch 32 | Loss: 0.4018 | Val Acc: 0.8696
+2026-01-31 16:43:23,875 | INFO | Epoch 33 | Loss: 0.3955 | Val Acc: 0.9079
+2026-01-31 16:43:27,915 | INFO | Epoch 34 | Loss: 0.3927 | Val Acc: 0.9003
+2026-01-31 16:43:31,936 | INFO | Epoch 35 | Loss: 0.3796 | Val Acc: 0.9079
+2026-01-31 16:43:31,942 | INFO | 
+              precision    recall  f1-score   support
+
+      Normal       1.00      0.77      0.87        13
+   Imbalance       1.00      0.69      0.82        75
+    Misalign       0.93      0.91      0.92        96
+     Bearing       0.88      1.00      0.93       207
+
+    accuracy                           0.91       391
+   macro avg       0.95      0.84      0.88       391
+weighted avg       0.92      0.91      0.90       391
+
+2026-01-31 16:43:31,942 | INFO | Generating Physics-Aware Saliency Maps...
+2026-01-31 16:43:32,961 | INFO | Done.

@@ -1,0 +1,1 @@
+2026-01-31 16:07:04,183 | INFO | Processing data... Mirroring structure to 4k_mafulda_structured

@@ -1,77 +1,78 @@
 import sys
 import csv
-import scipy.io
 import numpy as np
 import torch
 import pandas as pd
 from pathlib import Path
+from scipy.io import loadmat
 from scipy.signal import resample_poly, welch
 from tqdm import tqdm
 
 # --------------------------------------------------
 # PATH SETUP
 # --------------------------------------------------
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 print(f"Base Dir: {BASE_DIR}")
 
-# Add training folder to sys.path
-sys.path.append(str(BASE_DIR / "src" / "training"))
 
-# Import the robust/generalizing model
-from train_explain_cnn import GeneralizingCNN, compute_robust_spectrum, safe_zscore
+# Import the new GeneralizingCNN and utils
+from train_explain_cnn import GeneralizingCNN, compute_robust_spectrum, get_rpm
 
 # --------------------------------------------------
 # CONFIG
 # --------------------------------------------------
 class InferenceConfig:
     def __init__(self):
-        self.max_order = 15.0      # Match training
-        self.order_bins = 256      # Match training
-        self.target_fs = 5000      # Match training
+        self.max_order = 15.0
+        self.order_bins = 256
+        self.target_fs = 5000
         self.window_sec = 1.0
-        self.original_fs = 50000   # Original data sampling rate
+        self.original_fs = 50000
 
 cfg = InferenceConfig()
 
 # --------------------------------------------------
 # PATHS
 # --------------------------------------------------
-DATA_DIR = BASE_DIR / "data" / "CWRU"
+DATA_DIR = BASE_DIR / "data" / "cwru"
 MODEL_PATH = BASE_DIR / "src" / "models_gen_robust" / "best_model.pth"
 OUTPUT_LOG = BASE_DIR / "cwru_results.csv"
 
+
+print(DATA_DIR)
+print(MODEL_PATH)
+print(OUTPUT_LOG)
 # --------------------------------------------------
 # UTILS
 # --------------------------------------------------
 def find_signal(mat):
-    """Find the first 2D ndarray in .mat file"""
+    """Find first 2D ndarray in .mat file"""
     for k, v in mat.items():
         if isinstance(v, np.ndarray) and v.ndim == 2:
             return v.squeeze()
     return None
 
-def estimate_rpm(sig, fs):
-    """Estimate RPM using Welch and a 10-65Hz range"""
-    f, Pxx = welch(sig, fs=fs, nperseg=4096)
-    mask = (f > 10) & (f < 65)
-    if np.any(mask):
-        return f[mask][np.argmax(Pxx[mask])] * 60
-    return 0.0
+def safe_zscore(sig):
+    """Standardize signal along axis 0"""
+    mean = sig.mean(0, keepdims=True)
+    std = sig.std(0, keepdims=True)
+    std[std < 1e-12] = 1.0
+    return (sig - mean) / std
 
 def sliding_window_inference(sig_1ch, cfg, model, device, step_sec=0.5):
-    """Perform sliding-window inference over the signal for robustness"""
+    """Perform sliding-window inference"""
     win_pts = int(cfg.window_sec * cfg.target_fs)
     step_pts = int(step_sec * cfg.target_fs)
     outputs = []
 
-    # Replicate to 3 channels
+    # replicate to 3 channels
     sig = np.stack([sig_1ch]*3, axis=1)
 
     # Resample
     gcd = np.gcd(cfg.original_fs, cfg.target_fs)
     sig = resample_poly(sig, cfg.target_fs//gcd, cfg.original_fs//gcd, axis=0)
 
-    rpm = estimate_rpm(sig[:, 0], cfg.target_fs)
+    rpm = get_rpm(sig[:, 0], cfg.target_fs)
 
     for start in range(0, sig.shape[0]-win_pts+1, step_pts):
         segment = sig[start:start+win_pts]
@@ -82,7 +83,6 @@ def sliding_window_inference(sig_1ch, cfg, model, device, step_sec=0.5):
             outputs.append(torch.softmax(model(x_t), dim=1).cpu().numpy())
 
     if len(outputs) == 0:
-        # If signal is shorter than window
         segment = sig[:win_pts]
         segment = safe_zscore(segment)
         spec = compute_robust_spectrum(segment, cfg.target_fs, rpm, cfg)
@@ -97,16 +97,12 @@ def sliding_window_inference(sig_1ch, cfg, model, device, step_sec=0.5):
 
 def label_from_filename(name):
     name = name.lower()
-    if "normal" in name:
-        return "Normal"
-    elif "imbalance" in name:
-        return "Imbalance"
-    elif "horizontal" in name or "vertical" in name:
-        return "Misalignment"
+    if "normal" in name: return "Normal"
+    elif "imbalance" in name: return "Imbalance"
+    elif "horizontal" in name or "vertical" in name: return "Misalignment"
     elif any(k in name for k in ["ball", "outer", "inner", "cage", "overhang"]):
         return "Bearing"
-    else:
-        return "Unknown"
+    return "Unknown"
 
 # --------------------------------------------------
 # MAIN
@@ -129,7 +125,7 @@ def main():
 
         for file in tqdm(files):
             try:
-                mat = scipy.io.loadmat(file)
+                mat = loadmat(file)
                 sig = find_signal(mat)
                 if sig is None:
                     raise ValueError("Signal not found")
@@ -137,9 +133,7 @@ def main():
                 pred_idx, conf, rpm = sliding_window_inference(sig, cfg, model, device)
                 classes = ["Normal", "Imbalance", "Misalignment", "Bearing"]
                 pred = classes[pred_idx]
-
                 gt = label_from_filename(file.name)
-
             except Exception as e:
                 pred, conf, rpm, gt = "Error", 0.0, 0.0, "Unknown"
 

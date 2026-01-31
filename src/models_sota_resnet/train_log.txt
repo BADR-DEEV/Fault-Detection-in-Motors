@@ -1,0 +1,44 @@
+2026-01-31 19:48:45,494 | INFO | Found metadata.csv. Loading...
+2026-01-31 19:48:47,000 | INFO | Starting Training (ResNet-1D)...
+2026-01-31 19:48:54,941 | INFO | Epoch 1/40 | Loss: 0.8446 | Val Acc: 0.5371
+2026-01-31 19:49:00,464 | INFO | Epoch 2/40 | Loss: 0.5239 | Val Acc: 0.7647
+2026-01-31 19:49:05,899 | INFO | Epoch 3/40 | Loss: 0.4978 | Val Acc: 0.8645
+2026-01-31 19:49:11,164 | INFO | Epoch 4/40 | Loss: 0.4360 | Val Acc: 0.8031
+2026-01-31 19:49:16,536 | INFO | Epoch 5/40 | Loss: 0.2984 | Val Acc: 0.9028
+2026-01-31 19:49:22,200 | INFO | Epoch 6/40 | Loss: 0.3116 | Val Acc: 0.7928
+2026-01-31 19:49:27,643 | INFO | Epoch 7/40 | Loss: 0.3707 | Val Acc: 0.9054
+2026-01-31 19:49:33,210 | INFO | Epoch 8/40 | Loss: 0.2962 | Val Acc: 0.7852
+2026-01-31 19:49:38,586 | INFO | Epoch 9/40 | Loss: 0.2521 | Val Acc: 0.8798
+2026-01-31 19:49:43,608 | INFO | Epoch 10/40 | Loss: 0.2474 | Val Acc: 0.8517
+2026-01-31 19:49:48,999 | INFO | Epoch 11/40 | Loss: 0.1960 | Val Acc: 0.9386
+2026-01-31 19:49:54,527 | INFO | Epoch 12/40 | Loss: 0.2148 | Val Acc: 0.9412
+2026-01-31 19:49:59,991 | INFO | Epoch 13/40 | Loss: 0.1580 | Val Acc: 0.9258
+2026-01-31 19:50:05,423 | INFO | Epoch 14/40 | Loss: 0.1528 | Val Acc: 0.9386
+2026-01-31 19:50:10,855 | INFO | Epoch 15/40 | Loss: 0.1362 | Val Acc: 0.9412
+2026-01-31 19:50:16,188 | INFO | Epoch 16/40 | Loss: 0.1270 | Val Acc: 0.9258
+2026-01-31 19:50:21,706 | INFO | Epoch 17/40 | Loss: 0.1544 | Val Acc: 0.9437
+2026-01-31 19:50:27,484 | INFO | Epoch 18/40 | Loss: 0.1279 | Val Acc: 0.9309
+2026-01-31 19:50:32,817 | INFO | Epoch 19/40 | Loss: 0.1127 | Val Acc: 0.9284
+2026-01-31 19:50:38,454 | INFO | Epoch 20/40 | Loss: 0.1030 | Val Acc: 0.9386
+2026-01-31 19:50:44,164 | INFO | Epoch 21/40 | Loss: 0.0945 | Val Acc: 0.9182
+2026-01-31 19:50:49,864 | INFO | Epoch 22/40 | Loss: 0.1153 | Val Acc: 0.9258
+2026-01-31 19:50:55,410 | INFO | Epoch 23/40 | Loss: 0.0922 | Val Acc: 0.9233
+2026-01-31 19:51:00,818 | INFO | Epoch 24/40 | Loss: 0.0943 | Val Acc: 0.9386
+2026-01-31 19:51:06,196 | INFO | Epoch 25/40 | Loss: 0.0963 | Val Acc: 0.9616
+2026-01-31 19:51:11,638 | INFO | Epoch 26/40 | Loss: 0.0601 | Val Acc: 0.9565
+2026-01-31 19:51:16,952 | INFO | Epoch 27/40 | Loss: 0.0750 | Val Acc: 0.9591
+2026-01-31 19:51:22,103 | INFO | Epoch 28/40 | Loss: 0.0786 | Val Acc: 0.9463
+2026-01-31 19:51:27,320 | INFO | Epoch 29/40 | Loss: 0.0775 | Val Acc: 0.9565
+2026-01-31 19:51:32,923 | INFO | Epoch 30/40 | Loss: 0.0727 | Val Acc: 0.9463
+2026-01-31 19:51:38,541 | INFO | Epoch 31/40 | Loss: 0.1063 | Val Acc: 0.8542
+2026-01-31 19:51:43,832 | INFO | Epoch 32/40 | Loss: 0.1404 | Val Acc: 0.8133
+2026-01-31 19:51:48,976 | INFO | Epoch 33/40 | Loss: 0.1829 | Val Acc: 0.9412
+2026-01-31 19:51:54,361 | INFO | Epoch 34/40 | Loss: 0.1952 | Val Acc: 0.8210
+2026-01-31 19:51:59,786 | INFO | Epoch 35/40 | Loss: 0.1330 | Val Acc: 0.9463
+2026-01-31 19:52:04,870 | INFO | Epoch 36/40 | Loss: 0.0809 | Val Acc: 0.9565
+2026-01-31 19:52:10,158 | INFO | Epoch 37/40 | Loss: 0.1254 | Val Acc: 0.9182
+2026-01-31 19:52:15,342 | INFO | Epoch 38/40 | Loss: 0.1348 | Val Acc: 0.9207
+2026-01-31 19:52:20,604 | INFO | Epoch 39/40 | Loss: 0.0955 | Val Acc: 0.9514
+2026-01-31 19:52:25,848 | INFO | Epoch 40/40 | Loss: 0.0451 | Val Acc: 0.9693
+2026-01-31 19:52:25,853 | INFO | Generating Final Reports...
+2026-01-31 19:52:28,737 | INFO | Done. Check models_sota_resnet for ROC curves and Harmonic plots.

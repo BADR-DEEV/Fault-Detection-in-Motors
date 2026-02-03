@@ -1,0 +1,41 @@
+{
+  "timestamp": "20260203_115941",
+  "config": {
+    "seed": 42,
+    "target_fs": 4000,
+    "window_sec": 1.0,
+    "window_pts": 4000,
+    "short_window_sec": 0.2,
+    "short_window_pts": 800,
+    "max_order": 10.0,
+    "order_bins": 512,
+    "rpm_jitter_range": [
+      0.75,
+      1.35
+    ],
+    "energy_shift_db": [
+      -15,
+      15
+    ],
+    "snr_range_db": [
+      10,
+      35
+    ],
+    "severity_weights": {
+      "normal": 8.0,
+      "imbalance": 1.5,
+      "misalignment": 1.2,
+      "bearing_0g": 3.0,
+      "bearing_6g": 1.8,
+      "bearing_20g": 1.0,
+      "bearing_35g": 0.7
+    },
+    "batch_size": 32,
+    "num_epochs": 100,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "patience": 20,
+    "min_lr": 1e-06,
+    "short_window_prob": 0.2
+  }
+}

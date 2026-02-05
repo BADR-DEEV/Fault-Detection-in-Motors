@@ -1,0 +1,6 @@
+Training started at 2026-02-04 18:53:36.468305
+Model: RPInvariantFaultNet
+Window: 1024 samples (256ms)
+CWT Scales: 32 (log-spaced)
+Epochs: 30, Batch Size: 16
+

@@ -21,7 +21,7 @@ RANDOM_STATE = 42
 SENSOR_COLS = [1, 2, 3] # Axial, Radial, Tangential
 
 # Path to save processed data (skips loading CSVs next time)
-CACHE_FILE = "mafaulda_multifault_data.pkl"
+CACHE_FILE = "mafaulda_multifault_full.pkl"
 
 # ==================== MULTI-FAULT DATA CONFIG ====================
 # Define which folders to load and their labels.

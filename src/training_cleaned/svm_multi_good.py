@@ -22,6 +22,14 @@ import random
 import logging
 import time
 from collections import defaultdict
+from sklearn.metrics import make_scorer, f1_score
+from mpl_toolkits.mplot3d import Axes3D
+
+import plotly.express as px
+import plotly.graph_objects as go
+from plotly.subplots import make_subplots
+import pandas as pd
+from sklearn.manifold import TSNE
 
 # ==================== CONFIGURATION ====================
 # Physics Settings
@@ -365,56 +373,66 @@ def plot_pca_multiclass(X_scaled, y, class_names):
     if pca.explained_variance_ratio_.sum() < 0.3:
         logger.warning("   ⚠️  LOW VARIANCE EXPLAINED: PCA may not capture discriminative features well")
 
-def plot_tsne_multiclass(X_scaled, y, class_names, perplexities=[15, 30, 50]):
-    """Robust t-SNE with multiple perplexities and error handling"""
-    logger.info("🎨 Generating t-SNE plots with multiple perplexities (local/global structure)...")
-    
-    valid_perps = []
-    embeddings = []
-    
+
+
+def plot_tsne_multiclass_interactive(X_scaled, y, class_names, perplexities=[15, 30, 50]):
+    """Generates interactive Plotly visualizations for 2D and 3D t-SNE"""
+    logger.info("🎨 Generating Interactive Plotly t-SNE visualizations...")
+
+    # Map the numeric y labels to actual class names for the legend
+    y_named = [class_names[val] for val in y]
+
     for perp in perplexities:
         try:
-            tsne = TSNE(
-                n_components=2,
-                perplexity=perp,
-                max_iter=1000,  # Fixed parameter name
-                random_state=RANDOM_STATE,
-                init='pca',
-                n_jobs=-1
+            # 1. Compute 2D
+            tsne_2d = TSNE(n_components=2, perplexity=perp, max_iter=1000, 
+                           random_state=RANDOM_STATE, init='pca', n_jobs=-1)
+            X_2d = tsne_2d.fit_transform(X_scaled)
+
+            # 2. Compute 3D
+            tsne_3d = TSNE(n_components=3, perplexity=perp, max_iter=1000, 
+                           random_state=RANDOM_STATE, init='pca', n_jobs=-1)
+            X_3d = tsne_3d.fit_transform(X_scaled)
+
+            # Create a temporary DataFrame for easier plotting
+            df = pd.DataFrame({
+                'Dim1': X_3d[:, 0],
+                'Dim2': X_3d[:, 1],
+                'Dim3': X_3d[:, 2],
+                'TSNE1_2d': X_2d[:, 0],
+                'TSNE2_2d': X_2d[:, 1],
+                'Fault_Condition': y_named
+            })
+
+            # --- 3. Generate Interactive 3D Plot ---
+            fig_3d = px.scatter_3d(
+                df, x='Dim1', y='Dim2', z='Dim3',
+                color='Fault_Condition',
+                title=f"3D t-SNE Navigation (Perplexity: {perp})",
+                labels={'Dim1': 'Cluster Depth', 'Dim2': 'Cluster Width', 'Dim3': 'Cluster Height'},
+                opacity=0.8,
+                template='plotly_dark'  # Dark mode often makes vibration clusters pop more
             )
-            X_embed = tsne.fit_transform(X_scaled)
-            valid_perps.append(perp)
-            embeddings.append(X_embed)
-            logger.info(f"   ✓ t-SNE successful: perplexity={perp}")
+            fig_3d.update_traces(marker=dict(size=4, line=dict(width=0)))
+            fig_3d.show()
+
+            # --- 4. Generate Interactive 2D Plot ---
+            fig_2d = px.scatter(
+                df, x='TSNE1_2d', y='TSNE2_2d',
+                color='Fault_Condition',
+                title=f"2D t-SNE (Perplexity: {perp})",
+                opacity=0.7,
+                template='plotly_white'
+            )
+            fig_2d.show()
+
+            logger.info(f"   ✓ Interactive plots rendered for perplexity={perp}")
+
         except Exception as e:
-            logger.warning(f"   ✗ t-SNE failed (perplexity={perp}): {str(e)[:60]}")
-    
-    if not valid_perps:
-        logger.error("❌ All t-SNE perplexities failed. Skipping visualization.")
-        return
-    
-    fig, axes = plt.subplots(1, len(valid_perps), figsize=(7*len(valid_perps), 6))
-    if len(valid_perps) == 1:
-        axes = [axes]
-    
-    for idx, (perp, X_embed) in enumerate(zip(valid_perps, embeddings)):
-        scatter = axes[idx].scatter(X_embed[:, 0], X_embed[:, 1], c=y, cmap='tab10', 
-                                   alpha=0.7, s=35, edgecolors='none')
-        axes[idx].set_title(f't-SNE (Perplexity={perp})', fontsize=13, fontweight='bold')
-        axes[idx].set_xlabel('Component 1', fontsize=11)
-        axes[idx].set_ylabel('Component 2', fontsize=11)
-        axes[idx].grid(True, alpha=0.3, linestyle='--')
-    
-    plt.suptitle('t-SNE: Multi-Fault Cluster Structure at Different Scales\n(Validate cluster separation', fontsize=16, fontweight='bold', y=0.995)
-    plt.tight_layout()
-    plt.show()
-    
-    # Critical validation logging
-    logger.info("✅ t-SNE VALIDATION CHECKLIST:")
-    logger.info("   [ ] Clusters remain consistent across perplexities (15→30→50)")
-    logger.info("   [ ] Normal operation forms distinct cluster from all faults")
-    logger.info("   [ ] Similar fault types (e.g., Ball/Outer Race) show proximity")
-    logger.info("   ⚠️  RED FLAG: Clusters completely reorganize between perplexities → unstable representation")
+            logger.warning(f"   ✗ t-SNE Plotly failed (perplexity={perp}): {str(e)}")
+
+    logger.info("✅ NAVIGATION TIP: Use your mouse to rotate the 3D plot. Scroll to zoom.")
+
 
 def plot_rpm_stratified_multiclass(df, y_pred, y_true, class_names):
     """Performance analysis across operational RPM ranges"""
@@ -565,49 +583,63 @@ def plot_confusion_matrix_enhanced(y_true, y_pred, class_names):
                     logger.error(f"      🔴 CRITICAL: False alarms on healthy machinery!")
                 elif "Normal" not in true_cls and "Normal" in pred_cls:
                     logger.error(f"      🔴 CRITICAL: Missed fault detection!")
+                    from sklearn.metrics import make_scorer, f1_score
+
 def plot_feature_importance_multiclass(model, X_train, y_train, X_test, y_test, feature_names, class_names):
-    """CORRECTED: Uses TRAIN data for importance calculation"""
-    logger.info("🧠 Calculating per-class feature importance (XAI)...")
+    """
+    CORRECTED: Uses F1-score and Class Weights to prevent 'All Zeros' on minority classes.
+    """
+    logger.info("🧠 Calculating per-class feature importance (XAI) - Corrected...")
     
-    # Get top 20 features from full model first
-    results = permutation_importance(model, X_test, y_test, n_repeats=10, 
-                                    random_state=RANDOM_STATE, n_jobs=-1)
-    top_idx = results.importances_mean.argsort()[::-1][:20]
+    # 1. Get global top features to reduce computation time
+    # (We still use the main model for this first pass)
+    results = permutation_importance(model, X_test, y_test, n_repeats=5, random_state=42, n_jobs=-1)
+    top_idx = results.importances_mean.argsort()[::-1][:15] # Top 15 features
+    top_features = [feature_names[i] for i in top_idx]
     
-    # Per-class importance using TRAINING data for binary classifiers
     n_classes = len(class_names)
     importance_matrix = np.zeros((n_classes, len(top_idx)))
     
+    # 2. Per-Class Importance using Binary Classifiers
     for cls_idx in range(n_classes):
-        # Create binary labels for this class (using TRAIN data)
-        y_binary_train = (y_train == cls_idx).astype(int)
-        y_binary_test = (y_test == cls_idx).astype(int)
+        target_class = class_names[cls_idx]
         
-        # Skip if severe class imbalance
-        if np.sum(y_binary_train) < 20 or np.sum(1-y_binary_train) < 20:
-            logger.warning(f"   Skipping {class_names[cls_idx]}: insufficient samples for binary importance")
+        # Create Binary Targets (1 = Target Fault, 0 = Others)
+        y_bin_train = (y_train == cls_idx).astype(int)
+        y_bin_test = (y_test == cls_idx).astype(int)
+        
+        # Skip if too few samples
+        if np.sum(y_bin_train) < 10:
             continue
             
-        # Train binary classifier on TRAIN data ONLY
-        binary_clf = SVC(kernel='rbf', C=10, gamma='scale', random_state=RANDOM_STATE)
-        binary_clf.fit(X_train, y_binary_train)
+        # TRAIN Binary Model with BALANCED weights
+        # This ensures the model actually tries to predict the fault
+        bin_clf = SVC(kernel='rbf', C=10, gamma='scale', 
+                     class_weight='balanced',  # <--- CRITICAL FIX
+                     random_state=42)
+        bin_clf.fit(X_train[:, top_idx], y_bin_train) # Only fit on top features to save time
         
-        # Calculate importance on TEST data (proper validation)
+        # CALCULATE Importance using F1-SCORE (not Accuracy)
+        # This measures how much the feature helps find the specific fault
+        scorer = make_scorer(f1_score)
         r = permutation_importance(
-            binary_clf, X_test, y_binary_test, 
-            n_repeats=5, random_state=RANDOM_STATE, n_jobs=-1
+            bin_clf, X_test[:, top_idx], y_bin_test, 
+            scoring=scorer,  # <--- CRITICAL FIX
+            n_repeats=5, random_state=42, n_jobs=-1
         )
-        importance_matrix[cls_idx] = r.importances_mean[top_idx]
-    
-    # Plot heatmap (same as before)
-    plt.figure(figsize=(14, 8))
+        
+        # Handle negatives (noise)
+        imps = r.importances_mean
+        imps[imps < 0] = 0
+        importance_matrix[cls_idx] = imps
+
+    # 3. Plotting
+    plt.figure(figsize=(12, 8))
     sns.heatmap(importance_matrix, annot=True, fmt='.3f', cmap='viridis',
-                xticklabels=[f"{f.split('_')[0][:3]}.{f.split('_')[1]}" for f in [feature_names[i] for i in top_idx]],
+                xticklabels=top_features,
                 yticklabels=class_names, vmin=0)
-    plt.title('Per-Class Feature Importance (Physics-Aligned)\nHigher = More critical for distinguishing this fault', 
-             fontsize=15, fontweight='bold')
-    plt.xlabel('Feature (Axis.Feat)', fontsize=12, fontweight='bold')
-    plt.ylabel('Fault Class', fontsize=12, fontweight='bold')
+    plt.title('Corrected Per-Class Feature Importance (F1-Score Based)', fontsize=15, fontweight='bold')
+    plt.xlabel('Top Features', fontsize=12)
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     plt.show()
@@ -688,7 +720,7 @@ if __name__ == "__main__":
         plot_pca_multiclass(X_test_scaled, y_test, class_names)
     
     if PLOT_T_SNE and len(X_test_scaled) <= 5000:  # Avoid memory issues
-        plot_tsne_multiclass(X_test_scaled, y_test, class_names, perplexities=[15, 30, 50])
+        plot_tsne_multiclass_interactive(X_test_scaled, y_test, class_names, perplexities=[15, 30, 50])
     
     if PLOT_RPM_STRATIFIED:
         # Create test subset with RPM metadata

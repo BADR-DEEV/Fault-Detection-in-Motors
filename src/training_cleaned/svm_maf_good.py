@@ -338,7 +338,7 @@ def plot_frequency_domain_comparison(df, feature_names, rpm_range='mid'):
 def plot_pca_separation(X, y):
     """Reduces dimensions to 2D to show how separable the classes are"""
     logger.info("🎨 Generating PCA Plot...")
-    pca = PCA(n_components=2)
+    pca = PCA(n_components=3)
     X_pca = pca.fit_transform(X)
     
     plt.figure(figsize=(11, 7))
@@ -347,6 +347,7 @@ def plot_pca_separation(X, y):
     plt.title("PCA: Feature Space Separation\n(Do vibration signatures separate by fault condition?)", fontsize=14, fontweight='bold')
     plt.xlabel(f"PC1 ({pca.explained_variance_ratio_[0]:.2%} variance)", fontsize=11)
     plt.ylabel(f"PC2 ({pca.explained_variance_ratio_[1]:.2%} variance)", fontsize=11)
+    
     plt.grid(True, alpha=0.3, linestyle='--')
     plt.tight_layout()
     plt.show()

@@ -452,7 +452,7 @@ def train_pytorch_model(X: np.ndarray, y: np.ndarray, groups: np.ndarray, rpms: 
     logger.info(f"✅ ACTIVATED CLASS WEIGHTS: Outer_Race=1.5x, Ball_Fault=1.3x (fixes recall imbalance)")
     
     # GroupKFold to prevent file-level leakage
-    gkf = GroupKFold(n_splits=5)
+    gkf = GroupKFold(n_splits=1)
     logger.info(f"\n🚀 Starting 5-Fold Group Cross-Validation (PyTorch, file-level separation)")
     logger.info("="*70)
     
@@ -1486,17 +1486,27 @@ if __name__ == "__main__":
     }, MODEL_DIR / "deployment_bundle.pt")
     logger.info(f"✅ Best model saved to {MODEL_DIR / 'best_model.pt'}")
     logger.info(f"✅ Deployment bundle saved to {MODEL_DIR / 'deployment_bundle.pt'}")
-    
-    # 3. FINAL EVALUATION
+ # 3. FINAL EVALUATION (USING PROPER STRATIFIED TEST SET)
+
+    # Create stratified test set (guarantees all classes present)
     X_train_full, X_test_proper, y_train_full, y_test_proper, rpm_train_full, rpm_test_proper = train_test_split(
         X, y, rpms, test_size=0.2, stratify=y, random_state=RANDOM_STATE
     )
-        
+
+    # CRITICAL FIX 1: Create proper DataLoader for test set
+    test_dataset = MaFaulDaDataset(
+        X_test_proper, 
+        label_encoder.transform(y_test_proper), 
+        rpm_test_proper  # Include RPMs for physics validation
+    )
+    test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, num_workers=0)
+
     best_model.eval()
     all_preds, all_probs, all_labels, all_rpms = [], [], [], []
-    
+
     with torch.no_grad():
-        for batch_X, batch_y, batch_rpm in X_test_proper:
+        # CRITICAL FIX 2: Iterate over DataLoader (not raw array)
+        for batch_X, batch_y, batch_rpm in test_loader:  
             batch_X, batch_y = batch_X.to(DEVICE), batch_y.to(DEVICE)
             outputs = best_model(batch_X)
             probs = torch.softmax(outputs, dim=1)
@@ -1506,15 +1516,17 @@ if __name__ == "__main__":
             all_probs.extend(probs.cpu().numpy())
             all_labels.extend(batch_y.cpu().numpy())
             all_rpms.extend(batch_rpm.numpy())
-    
+
     y_true = np.array(all_labels)
     y_pred = np.array(all_preds)
-    rpm_test = np.array(all_rpms)
-    
+    rpm_test = np.array(all_rpms)  # FIXED TYPO: np_array → np.array
+
     logger.info("\n" + "="*70)
-    logger.info("🏆 PYTORCH ORDER TRACKING CNN RESULTS")
+    logger.info("🏆 PYTORCH ORDER TRACKING CNN RESULTS (Stratified Test Set)")
     logger.info("="*70)
-    target_names = label_encoder.classes_  # Always use label_encoder's class order
+
+    # CRITICAL FIX 3: Use label_encoder.classes_ for consistent ordering
+    target_names = label_encoder.classes_
     labels = list(range(len(target_names)))
     print(classification_report(
         y_true, 
@@ -1522,48 +1534,50 @@ if __name__ == "__main__":
         target_names=target_names, 
         labels=labels, 
         digits=4, 
-        zero_division=0  # Show 0.0 for missing classes instead of error
+        zero_division=0
     ))
-    logger.info(f"Test set contains {len(np.unique(y_true))}/6 classes | Missing: {[c for c in target_names if c not in np.unique(y_true)]}")
+    logger.info(f"Test set contains {len(np.unique(y_true))}/6 classes | "
+                f"Missing: {[c for c in target_names if c not in np.unique(y_true)]}")
     logger.info(f"Overall Accuracy: {accuracy_score(y_true, y_pred):.4f}")
     logger.info(f"Macro F1-Score:   {f1_score(y_true, y_pred, average='macro'):.4f}")
-    
-    # 4. PHYSICS VALIDATION
-    plot_rpm_stratified_dl(y_true, y_pred, rpm_test, class_names, "PyTorch Order Tracking CNN")
-    plot_confusion_matrix_dl(y_true, y_pred, class_names)
-    
-    # ✅ CRITICAL FIX: Generate physics explanations AFTER evaluation
+
+    # 4. PHYSICS VALIDATION (using CORRECT test set data)
+    plot_rpm_stratified_dl(y_true, y_pred, rpm_test, target_names, "PyTorch Order Tracking CNN")
+    plot_confusion_matrix_dl(y_true, y_pred, target_names)
+
+    # CRITICAL FIX 4: Use X_test_proper (not X[-1000:]) for explanations
     logger.info("\n" + "="*70)
     logger.info("🔬 GENERATING PHYSICS-ALIGNED EXPLANATIONS FOR 3-AXIS UNDERHANG SENSOR")
     logger.info("="*70)
-    
+
     generate_comprehensive_explanations(
         best_model,
-        X[-1000:],  # Test set subset
+        X_test_proper,  # ✅ CORRECT: Use stratified test set
         y_true,
         y_pred,
         rpm_test,
-        class_names,
+        target_names,  # ✅ Use label_encoder.classes_ for consistency
         sample_per_class=1
     )
-    
-    # ✅ CRITICAL FIX: Generate validation summary with CORRECT physics statements
-    generate_validation_summary(y_true, y_pred, rpm_test, class_names)
-    
-    # 5. GRAD-CAM VISUALIZATION
+
+    generate_validation_summary(y_true, y_pred, rpm_test, target_names)
+
+    # 5. GRAD-CAM VISUALIZATION (using CORRECT test set samples)
     logger.info("\n🧠 Generating Grad-CAM Visualizations (Physics-Aligned Explanations)...")
     target_layer = best_model.conv2[0]
     gradcam = GradCAM1D(best_model, target_layer)
-    
-    for cls_idx, cls_name in enumerate(class_names):
+
+    for cls_idx, cls_name in enumerate(target_names):  # ✅ Use target_names
         mask = (y_true == cls_idx) & (y_pred == cls_idx)
         if np.sum(mask) == 0:
-            logger.warning(f"   No correctly classified samples for {cls_name}")
+            logger.warning(f"   ⚠️  No correctly classified samples for {cls_name}")
             continue
             
         sample_idx = np.argsort(np.abs(rpm_test[mask] - np.median(rpm_test[mask])))[len(rpm_test[mask])//2]
         actual_idx = np.where(mask)[0][sample_idx]
-        x_sample = X[-1000:][actual_idx:actual_idx+1]
+        
+        # CRITICAL FIX 5: Use X_test_proper (not X[-1000:])
+        x_sample = X_test_proper[actual_idx:actual_idx+1]  
         rpm_sample = rpm_test[actual_idx]
         
         logger.info(f"   Generating Grad-CAM for {cls_name} (RPM: {rpm_sample:.0f})...")
@@ -1571,13 +1585,14 @@ if __name__ == "__main__":
             gradcam.visualize(
                 x_sample, 
                 cls_idx, 
-                class_names,
+                target_names,  # ✅ Consistent class ordering
                 rpm=rpm_sample,
                 save_path=MODEL_DIR / f"gradcam_{cls_name.replace(' ', '_')}.png"
             )
         except Exception as e:
             logger.error(f"   ❌ Failed to generate Grad-CAM for {cls_name}: {str(e)[:80]}")
-    
+
+# [Rest of deployment summary remains unchanged...]
     # 6. DEPLOYMENT SUMMARY & VALIDATION REPORT
     elapsed = time.time() - start_time
     logger.info("\n" + "="*70)

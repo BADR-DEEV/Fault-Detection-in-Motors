@@ -26,15 +26,23 @@ from collections import defaultdict
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger()
 
-WINDOW_SIZE = 132
-STRIDE = 99
-DECIMATION_FACTOR = 25 
-VIBRATION_COLS = [1, 2, 3]  # Axial, Radial, Tangential (SKIP column 0 - tachometer)
-TACH_COL = 0                # Tachometer signal for RPM calculation
+DECIMATION_FACTOR = 12  
+
+# 2. CRITICAL: Increase Window Size
+# Old: 132 samples @ 2000Hz = 0.066 seconds (Frequency Resolution: ~15 Hz)
+# New: 4096 samples @ 4166Hz = ~1.0 second (Frequency Resolution: ~1 Hz)
+WINDOW_SIZE = 4096  
+
+# 3. Adjust Stride to maintain overlap (e.g., 50% or 75% overlap)
+STRIDE = 1024  # 75% overlap creates more training samples
+
+# -----------------------------
+VIBRATION_COLS = [1, 2, 3]
+TACH_COL = 0 
 AXIS_NAMES = ['Axial', 'Radial', 'Tangential']
 RANDOM_STATE = 42
-SAMPLING_FREQ_RAW = 50000  # Hz
-SAMPLING_FREQ_DECIMATED = SAMPLING_FREQ_RAW / DECIMATION_FACTOR  # 2000 Hz
+SAMPLING_FREQ_RAW = 50000
+SAMPLING_FREQ_DECIMATED = SAMPLING_FREQ_RAW / DECIMATION_FACTOR # Now ~4166.6 Hz
 
 # MaFaulDa operational RPM ranges (0.5HP motor)
 RPM_RANGES = {
@@ -99,8 +107,8 @@ def extract_features_with_freq(signal, sampling_freq):
         np.max(np.abs(signal)),
         stats.kurtosis(signal, fisher=False), 
         stats.skew(signal),
-        np.sqrt(np.mean(np.square(signal))),
-        np.sum(np.square(signal))
+        np.sqrt(np.mean(np.square(signal))) ,
+        np.sum(np.square(signal)) 
     ]
     
     # Frequency domain with actual Hz values

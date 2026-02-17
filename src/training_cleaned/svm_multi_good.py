@@ -329,6 +329,7 @@ def plot_frequency_domain_multiclass(df, class_names):
     plt.show()
 
 
+
 def plot_learning_curves_multiclass(X, y, groups=None):
     """Diagnose model capacity for multi-class problem"""
     logger.info("📈 Generating learning curves (diagnosing under/overfitting)...")

@@ -1,0 +1,11 @@
+# This file is used internally by FFMPEG.
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/3544663784_2037916591_223132457.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_1234096178_335424331.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_1225850454_3051304454.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_3394500337_1198355266.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_3236682020_4238834831.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_3416286673_963784237.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_223113552_3885277452.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_2057420403_280837014.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_84371863_3731957641.mp4'
+file 'file:C:/dev_work/personal/Ai-Driven-Vibrations-motor/notebooks/animations/media/videos/main_3/1080p60/partial_movie_files/VibrationSaliencyScene/260329756_2844360058_440761688.mp4'

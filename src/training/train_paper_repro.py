@@ -21,10 +21,28 @@ from sklearn.svm import SVC
 from sklearn.utils.validation import joblib
 
 from utils.Matlab_SVC import MatlabSVMQ
-from utils.data_loader import section_dataset
+# from utils.data_loader import section_dataset
 
 
 
+healthy_Dict = {"fileName": [], "x": [], "label": 0, "predicted": []}
+faulty_Dict = {"fileName": [], "x": [], "label": 1, "predicted": []}
+
+def load_data_custom(file_path: str, directory: str):
+    data = loadmat(f"../../data/paper_data/{directory}/{file_path}")
+    return data
+
+
+def section_dataset():
+    healthy_dir = os.path.join(DATA_ROOT, "Healthy")
+    faulty_dir = os.path.join(DATA_ROOT, "Faulty")
+    for i in os.listdir(healthy_dir):
+        healthy_Dict["fileName"].append(i)
+        healthy_Dict["x"].append(load_data_custom(i, "Healthy")["H"].squeeze())
+    for i in os.listdir(faulty_dir):
+        faulty_Dict["fileName"].append(i)
+        faulty_Dict["x"].append(load_data_custom(i, "Faulty")["H"].squeeze())
+    return healthy_Dict, faulty_Dict
 
 # ------------- User dataset configuration (edit paths if needed) -------------
 DATA_ROOT = "../../data/paper_data"
@@ -377,6 +395,7 @@ def run_paper_cv(healthy, faulty):
 
 # ---------------- Main ----------------
 if __name__ == "__main__":
+    
     print("Loading dataset...")
     healthy, faulty = section_dataset()
     print(f"Loaded {len(healthy['x'])} healthy files and {len(faulty['x'])} faulty files.")

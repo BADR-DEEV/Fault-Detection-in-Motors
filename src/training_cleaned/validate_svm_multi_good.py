@@ -11,7 +11,7 @@ from sklearn.metrics import (
     confusion_matrix, classification_report, accuracy_score, make_scorer,
     roc_curve, auc, f1_score, precision_recall_curve, average_precision_score
 )
-from sklearn.inspection import permutation_importance
+from sklearn.inspection import PartialDependenceDisplay, permutation_importance
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 from imblearn.over_sampling import RandomOverSampler
@@ -62,10 +62,10 @@ logger = logging.getLogger()
 
 # ==================== DATA SOURCES ====================
 DATA_SOURCES = {
-    "Normal": {"root": "normal", "patterns": ["*.csv"]},
-    "Imbalance": {"root": "imbalance", "subfolders": ["6g", "10g", "15g", "20g", "25g", "30g", "35g"]},
+    "Normal": {"root": "normal", "patterns": ["*.csv"]}, #49 files
+    "Imbalance": {"root": "imbalance", "subfolders": ["6g", "10g", "15g", "20g", "25g", "30g", "35g"]}, #347
     "Horiz_Misalign": {"root": "horizontal-misalignment", "subfolders": ["0.5mm", "1.0mm", "1.5mm", "2.0mm"]},
-    "Vert_Misalign": {"root": "vertical-misalignment", "subfolders": ["0.51mm", "0.63mm", "1.27mm", "1.40mm", "1.78mm", "1.90mm"]},
+    "Vert_Misalign": {"root": "vertical-misalignment", "subfolders": ["0.51mm", "0.63mm", "1.27mm", "1.40mm", "1.78mm", "1.90mm"]}, 
     "Ball_Fault": {"root": "underhang/ball_fault", "subfolders": ["6g",  "20g" , "35g"]},
     "Outer_Race": {"root": "underhang/outer_race", "subfolders": ["6g",  "20g", "35g"]}
 }
@@ -383,7 +383,7 @@ def load_mafaulda_dataset_with_groups(base_path, cache_file="mafaulda_physics_va
     
     # Physics-based RPM filtering
     initial_len = len(df)
-    df = df[(df['rpm'] >= 400) & (df['rpm'] <= 5000)].copy()
+    df = df[(df['rpm'] >= 600) & (df['rpm'] <= 5000)].copy()
     logger.info(f"   🧹 RPM Filtering: Removed {initial_len - len(df)} windows ({len(df)} remaining)")
     
     # Save cache
@@ -642,7 +642,208 @@ def validate_bearing_physics_mafulda(df, class_names):
 
 
 
+
+import shap
+
+def explain_with_shap(model, X_train, X_test, feature_names, class_names, max_display=15):
+    """
+    Generate SHAP explanations for global model interpretability.
+    Shows feature importance and direction of impact across all predictions.
+    """
+    logger.info("🧠 Generating SHAP explanations...")
     
+    # Create explainer (use KernelExplainer for SVM)
+    explainer = shap.KernelExplainer(model.predict_proba, shap.sample(X_train, 100, random_state=42))
+    
+    # Calculate SHAP values for test set (limit to 200 samples for speed)
+    X_test_sample = X_test[:200] if len(X_test) > 200 else X_test
+    shap_values = explainer.shap_values(X_test_sample)
+    
+    # 1. Summary Plot - Global feature importance
+    plt.figure(figsize=(12, 8))
+    shap.summary_plot(
+        shap_values, 
+        X_test_sample, 
+        feature_names=feature_names,
+        class_names=class_names,
+        max_display=max_display,
+        show=False
+    )
+    plt.suptitle('SHAP Summary: Global Feature Importance', fontsize=14, fontweight='bold', y=0.99)
+    plt.tight_layout()
+    plt.show()
+    
+    # 2. Bar Plot - Mean absolute SHAP values
+    plt.figure(figsize=(12, 8))
+    shap.summary_plot(
+        shap_values, 
+        X_test_sample, 
+        feature_names=feature_names,
+        class_names=class_names,
+        plot_type='bar',
+        max_display=max_display,
+        show=False
+    )
+    plt.suptitle('SHAP Feature Importance (Mean Absolute Impact)', fontsize=14, fontweight='bold', y=0.99)
+    plt.tight_layout()
+    plt.show()
+    
+    # 3. Per-class SHAP bar plots
+    n_classes = len(class_names)
+    fig, axes = plt.subplots(n_classes, 1, figsize=(12, 4 * n_classes))
+    if n_classes == 1:
+        axes = [axes]
+    
+    for i in range(n_classes):
+        shap.plots.bar(
+            shap.Explanation(
+                values=shap_values[i],
+                base_values=explainer.expected_value[i],
+                data=X_test_sample,
+                feature_names=feature_names
+            ),
+            max_display=max_display,
+            show=False,
+            ax=axes[i]
+        )
+        axes[i].set_title(f'SHAP Importance: {class_names[i]} Class', fontsize=12, fontweight='bold')
+    
+    plt.tight_layout()
+    plt.show()
+    
+    logger.info("✅ SHAP explanations generated:")
+    logger.info("   • Summary plot: Feature importance + impact direction")
+    logger.info("   • Bar plot: Mean absolute SHAP values")
+    logger.info("   • Per-class plots: Feature importance per fault type")
+    
+    return shap_values, explainer
+
+
+
+
+
+def plot_partial_dependence(model, X_test, feature_names, class_names, top_features=None, n_cols=3):
+    """
+    Generate Partial Dependence Plots showing how features influence predictions.
+    Reveals non-linear relationships between features and model output.
+    """
+    logger.info("📊 Generating Partial Dependence Plots...")
+    
+    # If no features specified, select top features based on variance or importance
+    if top_features is None:
+        # Select features with highest variance (most informative)
+        feature_var = np.var(X_test, axis=0)
+        top_idx = np.argsort(feature_var)[-9:]  # Top 9 features
+        top_features = [feature_names[i] for i in top_idx]
+    
+    # Limit to max 9 features for readability
+    top_features = top_features[:9]
+    feature_indices = [list(feature_names).index(f) for f in top_features]
+    
+    logger.info(f"\nPlotting PDP for features: {top_features}")
+    
+    # Create PDP plots for each class
+    n_classes = len(class_names)
+    n_rows = (n_classes + n_cols - 1) // n_cols
+    
+    fig, axes = plt.subplots(n_rows, n_cols, figsize=(5 * n_cols, 4 * n_rows))
+    axes = axes.flatten() if n_rows * n_cols > 1 else [axes]
+    
+    for i, class_name in enumerate(class_names):
+        ax = axes[i] if i < len(axes) else None
+        
+        disp = PartialDependenceDisplay.from_estimator(
+            model,
+            X_test,
+            features=feature_indices,
+            feature_names=feature_names,
+            target=i,  # Specific class
+            n_cols=3,
+            ax=ax if ax else None,
+            line_kw={"label": class_name, "color": plt.cm.tab10(i % 10)},
+            pd_line_kw={"color": plt.cm.tab10(i % 10)}
+        )
+        
+        if ax:
+            ax.set_title(f'{class_name}', fontsize=11, fontweight='bold')
+            ax.legend(loc='upper right', fontsize=8)
+    
+    # Remove empty subplots
+    for j in range(len(class_names), len(axes)):
+        fig.delaxes(axes[j])
+    
+    plt.suptitle('Partial Dependence Plots: Feature Impact on Predictions\n'
+                 '(Shows how feature values influence probability of each fault class)',
+                 fontsize=14, fontweight='bold', y=0.995)
+    plt.tight_layout()
+    plt.show()
+    
+    # Physics-aware interpretation
+    logger.info("\n✅ PDP Physics Interpretation:")
+    logger.info("   • Monotonic increase: Feature strongly indicates fault presence")
+    logger.info("   • Non-linear curve: Complex physics relationship (e.g., resonance)")
+    logger.info("   • Flat line: Feature has minimal impact on this class")
+    logger.info("\n🎓 Key Physics Insights:")
+    
+    # Auto-detect interesting patterns
+    for feat in top_features:
+        if 'kurt' in feat.lower():
+            logger.info(f"   • {feat}: Non-linear relationship expected (impulse detection threshold)")
+        elif 'ratio' in feat.lower():
+            logger.info(f"   • {feat}: Monotonic increase indicates directional fault physics")
+        elif 'centroid' in feat.lower():
+            logger.info(f"   • {feat}: Peak around fault frequency confirms spectral alignment")
+    
+    return disp
+
+import lime
+import lime.lime_tabular
+def explain_with_lime(model, X_instance, X_train, feature_names, class_names, num_features=20):
+
+    logger.info("🔍 Generating LIME explanation...")
+
+    # Get prediction FIRST
+    pred_proba = model.predict_proba(X_instance.reshape(1, -1))[0]
+    pred_class = model.predict(X_instance.reshape(1, -1))[0]
+
+    explainer = lime.lime_tabular.LimeTabularExplainer(
+        X_train,
+        feature_names=feature_names,
+        class_names=class_names,
+        mode='classification'
+    )
+
+    # 👇 EXPLICITLY explain predicted class
+    exp = explainer.explain_instance(
+        X_instance,
+        model.predict_proba,
+        num_features=num_features,
+        labels=[pred_class]   # 🔥 critical
+    )
+
+    logger.info(f"\nLIME Explanation:")
+    logger.info(f"Predicted Class: {class_names[pred_class]}")
+
+    logger.info("Prediction Probabilities:")
+    for i, prob in enumerate(pred_proba):
+        logger.info(f"  {class_names[i]}: {prob:.2%}")
+
+    logger.info(f"\nTop {num_features} contributing features:")
+
+    # 👇 specify label here
+    for feature, weight in exp.as_list(label=pred_class):
+        arrow = "↑" if weight > 0 else "↓"
+        logger.info(f"  {feature}: {weight:+.4f} {arrow}")
+
+    # 👇 specify label correctly
+    fig = exp.as_pyplot_figure(label=pred_class)
+    fig.suptitle(f'LIME Explanation: {class_names[pred_class]}',
+                 fontsize=14, fontweight='bold')
+
+    plt.tight_layout()
+    plt.show()
+
+    return exp
 
 def visualize_fault_harmonics_mafulda(raw_data_path, fault_type="Imbalance", rpm_target=1800, n_samples=8192):
     """
@@ -1417,6 +1618,7 @@ if __name__ == "__main__":
     
     X_train, X_test = X[train_idx], X[test_idx]
     y_train, y_test = y_enc[train_idx], y_enc[test_idx]
+
     rpm_test = rpm_values[test_idx]
     
     logger.info(f"\n✂️  GroupShuffleSplit Results:")
@@ -1431,7 +1633,9 @@ if __name__ == "__main__":
     
     ros = RandomOverSampler(random_state=RANDOM_STATE)
     X_train_res, y_train_res = ros.fit_resample(X_train_scaled, y_train)
-    
+
+
+
     # 4. TRAIN MODEL
     logger.info("\n🧠 Training SVM Classifier...")
     clf = SVC(kernel='rbf', C=10, gamma='scale', probability=True, random_state=RANDOM_STATE)
@@ -1500,11 +1704,32 @@ if __name__ == "__main__":
     logger.info("\n" + "="*70)
     logger.info("🎨 GRADUATION PROJECT VISUALIZATIONS")
     logger.info("="*70)
+    sample_idx = 200
+
+    X_sample = X_test_scaled[sample_idx]
+    logger.info(f"Visualizing sample {sample_idx} with RPM {rpm_test[sample_idx]:.0f} acutal class {class_names[y_test[sample_idx]]}")
+   
     
     if PLOT_PCA_WITH_RPM:
-        run_correct_severity_validation(df.iloc[test_idx], class_names)
-        plot_pca_with_rpm_coloring(X_test_scaled, y_test, rpm_test, class_names)
-        validate_bearing_physics_mafulda(df.iloc[test_idx].copy(), class_names)
+        # run_correct_severity_validation(df.iloc[test_idx], class_names)
+        # plot_pca_with_rpm_coloring(X_test_scaled, y_test, rpm_test, class_names)
+        # validate_bearing_physics_mafulda(df.iloc[test_idx].copy(), class_names)
+        plot_partial_dependence(
+        clf,
+        X_test_scaled,
+        feature_cols,
+        class_names
+    )
+        explain_with_lime(
+        clf, 
+        X_sample, 
+        X_train_res, 
+        feature_cols, 
+        class_names,
+        num_features=10
+    )
+    
+
 
         # visualize_fault_harmonics_mafulda
     

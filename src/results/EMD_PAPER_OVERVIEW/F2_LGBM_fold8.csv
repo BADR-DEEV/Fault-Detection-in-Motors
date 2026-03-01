@@ -1,0 +1,2 @@
+FeatureSet,Model,Fold,Accuracy,Precision,Recall,F1,TP,TN,FP,FN
+F2,LGBM,8,0.9047619047619048,1.0,0.8181818181818182,0.9,9,10,0,2

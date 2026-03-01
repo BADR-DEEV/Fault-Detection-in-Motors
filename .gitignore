@@ -11,10 +11,8 @@ __pycache__/
 Dataset/
 data/
 *.mat
-*.csv
 *.mp4
 *.npz
-.svg
 !small_config.csv   # (only allow if needed)
 
 # Models
@@ -24,8 +22,7 @@ data/
 *.pt
 
 # EMD extracted features
-feature.csv
-feature_fault.csv
+
 
 # Logs
 *.log

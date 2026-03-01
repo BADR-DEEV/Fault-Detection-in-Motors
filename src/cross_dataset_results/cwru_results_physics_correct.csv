@@ -1,0 +1,15 @@
+File,GT_Physics,Pred_Class,Confidence,Uncertainty,RPM,Correct,Rejected
+109.mat,Bearing_Healthy,Bearing,0.6717,0.9481,1797,Yes,Yes
+122.mat,Bearing_Healthy,Bearing,0.6818,0.9309,1797,Yes,Yes
+97(1).mat,Bearing_Healthy,Bearing,0.7437,0.8096,1797,Yes,Yes
+98.mat,Bearing_Healthy,Bearing,0.6950,0.8994,1797,Yes,Yes
+B007_1_123.mat,Bearing_Faulty,Bearing,0.6971,0.9005,1797,Yes,Yes
+B014_1_190.mat,Bearing_Faulty,Bearing,0.7252,0.8420,1797,Yes,Yes
+B021_1_227.mat,Bearing_Faulty,Bearing,0.6593,0.9677,1797,Yes,Yes
+IR007_1_110.mat,Bearing_Faulty,Bearing,0.7251,0.8522,1797,Yes,Yes
+IR014_1_175.mat,Bearing_Faulty,Bearing,0.7096,0.8833,1797,Yes,Yes
+IR021_1_214.mat,Bearing_Faulty,Bearing,0.7554,0.7941,1797,Yes,Yes
+OR007_6_1_136.mat,Bearing_Faulty,Bearing,0.6880,0.9129,1797,Yes,Yes
+OR014_6_1_202.mat,Bearing_Faulty,Bearing,0.7104,0.8768,1797,Yes,Yes
+OR021_6_1_239.mat,Bearing_Faulty,Bearing,0.6459,0.9807,1797,Yes,Yes
+Time_Normal_1_098.mat,Bearing_Healthy,Bearing,0.7581,0.7805,1797,Yes,Yes

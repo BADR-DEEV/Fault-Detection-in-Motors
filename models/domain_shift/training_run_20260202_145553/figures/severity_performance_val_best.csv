@@ -1,0 +1,7 @@
+Severity Group,Samples,Accuracy,Balanced Accuracy
+Normal,8,0.875,0.875
+Imbalance,50,0.96,0.96
+Misalignment,74,0.9864864864864865,0.9864864864864865
+Bearing (0g),85,1.0,1.0
+Bearing (6g),43,0.9767441860465116,0.9767441860465116
+Bearing (20g+),33,1.0,1.0

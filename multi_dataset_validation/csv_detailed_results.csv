@@ -1,0 +1,33 @@
+window_id,true_label,true_class,pred_label,pred_class,confidence,rpm_estimate,correct
+0,3,Bearing Fault,0,Normal/Overheating,0.9927379488945007,1800.0,False
+1,0,Normal/Overheating,0,Normal/Overheating,0.9777275323867798,1800.0,True
+2,3,Bearing Fault,0,Normal/Overheating,0.9966068267822266,1800.0,False
+3,0,Normal/Overheating,0,Normal/Overheating,0.9978959560394287,1800.0,True
+4,3,Bearing Fault,0,Normal/Overheating,0.997497022151947,1800.0,False
+5,3,Bearing Fault,0,Normal/Overheating,0.9961368441581726,1800.0,False
+6,3,Bearing Fault,0,Normal/Overheating,0.9923486709594727,1800.0,False
+7,0,Normal/Overheating,0,Normal/Overheating,0.9848431348800659,1800.0,True
+8,1,Imbalance,0,Normal/Overheating,0.9997826218605042,1800.0,False
+9,0,Normal/Overheating,0,Normal/Overheating,0.6995992660522461,1800.0,True
+10,1,Imbalance,0,Normal/Overheating,0.9985733032226562,1800.0,False
+11,3,Bearing Fault,0,Normal/Overheating,0.9484648108482361,1800.0,False
+12,0,Normal/Overheating,0,Normal/Overheating,0.9994354844093323,1800.0,True
+13,0,Normal/Overheating,0,Normal/Overheating,0.997114896774292,1800.0,True
+14,0,Normal/Overheating,0,Normal/Overheating,0.9998873472213745,1800.0,True
+15,0,Normal/Overheating,0,Normal/Overheating,0.9988928437232971,1800.0,True
+16,0,Normal/Overheating,0,Normal/Overheating,0.9571645259857178,1800.0,True
+17,1,Imbalance,0,Normal/Overheating,0.9916990995407104,1800.0,False
+18,1,Imbalance,0,Normal/Overheating,0.9776889085769653,1800.0,False
+19,1,Imbalance,0,Normal/Overheating,0.990908682346344,1800.0,False
+20,0,Normal/Overheating,0,Normal/Overheating,0.9909406900405884,1800.0,True
+21,3,Bearing Fault,0,Normal/Overheating,0.996454119682312,1800.0,False
+22,0,Normal/Overheating,0,Normal/Overheating,0.9889761209487915,1800.0,True
+23,0,Normal/Overheating,0,Normal/Overheating,0.9984492063522339,1800.0,True
+24,0,Normal/Overheating,0,Normal/Overheating,0.9990567564964294,1800.0,True
+25,0,Normal/Overheating,0,Normal/Overheating,0.9981173276901245,1800.0,True
+26,1,Imbalance,0,Normal/Overheating,0.9787776470184326,1800.0,False
+27,1,Imbalance,0,Normal/Overheating,0.9858821630477905,1800.0,False
+28,0,Normal/Overheating,0,Normal/Overheating,0.8335752487182617,1800.0,True
+29,0,Normal/Overheating,0,Normal/Overheating,0.9827857613563538,1800.0,True
+30,1,Imbalance,0,Normal/Overheating,0.9906771183013916,1800.0,False
+31,1,Imbalance,0,Normal/Overheating,0.9982929825782776,1800.0,False

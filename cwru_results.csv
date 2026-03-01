@@ -1,0 +1,13 @@
+File,GT,Pred,Confidence,RPM
+109.mat,Unknown,Bearing,0.9906,1920.0
+122.mat,Unknown,Bearing,1.0000,0.0
+B007_1_123.mat,Unknown,Bearing,1.0000,0.0
+B014_1_190.mat,Unknown,Bearing,1.0000,0.0
+B021_1_227.mat,Unknown,Bearing,0.9996,0.0
+IR007_1_110.mat,Unknown,Bearing,0.9933,0.0
+IR014_1_175.mat,Unknown,Error,0.0000,0.0
+IR021_1_214.mat,Unknown,Bearing,0.9946,0.0
+OR007_6_1_136.mat,Unknown,Bearing,0.9929,0.0
+OR014_6_1_202.mat,Unknown,Bearing,1.0000,0.0
+OR021_6_1_239.mat,Unknown,Bearing,0.9978,154.2
+Time_Normal_1_098.mat,Normal,Bearing,1.0000,0.0

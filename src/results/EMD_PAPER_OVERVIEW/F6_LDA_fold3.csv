@@ -1,0 +1,2 @@
+FeatureSet,Model,Fold,Accuracy,Precision,Recall,F1,TP,TN,FP,FN
+F6,LDA,3,0.8695652173913043,1.0,0.75,0.8571428571428571,9,11,0,3

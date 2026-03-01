@@ -1,0 +1,13 @@
+File,GT,Pred,Confidence,RPM
+109.mat,Bearing,Bearing,1.0000,1797
+122.mat,Bearing,Bearing,1.0000,1797
+B007_1_123.mat,Bearing,Bearing,1.0000,1797
+B014_1_190.mat,Bearing,Bearing,1.0000,1797
+B021_1_227.mat,Bearing,Bearing,0.9997,1797
+IR007_1_110.mat,Bearing,Bearing,1.0000,1797
+IR014_1_175.mat,Bearing,Bearing,1.0000,1797
+IR021_1_214.mat,Bearing,Bearing,1.0000,1797
+OR007_6_1_136.mat,Bearing,Bearing,1.0000,1797
+OR014_6_1_202.mat,Bearing,Bearing,1.0000,1797
+OR021_6_1_239.mat,Bearing,Bearing,1.0000,1797
+Time_Normal_1_098.mat,Normal,Bearing,0.9999,1797

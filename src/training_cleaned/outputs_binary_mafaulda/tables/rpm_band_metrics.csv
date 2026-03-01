@@ -1,0 +1,4 @@
+band,rpm_low,rpm_high,n_samples,accuracy,balanced_accuracy,recall_imbalance,specificity_normal
+low,600,1500,0,,,,
+mid,1501,2500,0,,,,
+high,2501,3800,104,0.9711538461538461,0.9711538461538461,0.9711538461538461,

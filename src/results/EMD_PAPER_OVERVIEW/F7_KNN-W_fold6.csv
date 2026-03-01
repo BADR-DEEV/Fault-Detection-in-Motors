@@ -1,0 +1,2 @@
+FeatureSet,Model,Fold,Accuracy,Precision,Recall,F1,TP,TN,FP,FN
+F7,KNN-W,6,1.0,1.0,1.0,1.0,12,10,0,0

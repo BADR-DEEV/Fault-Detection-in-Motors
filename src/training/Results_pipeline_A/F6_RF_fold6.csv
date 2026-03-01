@@ -1,0 +1,2 @@
+FeatureSet,Model,Fold,Accuracy,Precision,Recall,F1,TP,TN,FP,FN
+F6,RF,6,0.9545454545454546,0.9230769230769231,1.0,0.96,12,9,1,0

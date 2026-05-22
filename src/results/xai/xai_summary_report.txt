@@ -1,0 +1,16 @@
+======================================================================
+XAI INFERENCE SUMMARY REPORT
+======================================================================
+
+Model: C:\DEV\Personal\Ai-Driven-Vibrations-motor\src\training_cleaned\models\mafaulda_pytorch_order\best_model.pt
+Test Accuracy: 0.8444
+Classes: ['Ball_Fault', 'Horiz_Misalign', 'Imbalance', 'Normal', 'Outer_Race', 'Vert_Misalign']
+
+Generated Artifacts:
+  - Feature Maps: 6 PNG files
+  - Saliency Maps: 6 PNG + 12 CSV files
+  - SHAP Values: 6 PNG + 12 CSV files
+  - LIME: 1 PNG + 1 CSV file
+  - PFI: 1 PNG + 2 CSV files
+
+======================================================================

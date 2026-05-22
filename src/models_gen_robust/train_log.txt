@@ -1,0 +1,110 @@
+2026-01-31 14:31:41,157 | INFO | Scanning C:\dev_work\personal\Ai-Driven-Vibrations-motor\data\raw_mafulda for Balanced Processing...
+2026-01-31 14:31:41,378 | INFO | Processed 0 files... (8 slices from current file)
+2026-01-31 14:31:51,745 | INFO | Processed 50 files... (8 slices from current file)
+2026-01-31 14:32:02,272 | INFO | Processed 100 files... (8 slices from current file)
+2026-01-31 14:32:12,475 | INFO | Processed 150 files... (8 slices from current file)
+2026-01-31 14:32:22,689 | INFO | Processed 200 files... (8 slices from current file)
+2026-01-31 14:32:32,982 | INFO | Processed 250 files... (8 slices from current file)
+2026-01-31 14:32:42,963 | INFO | Processed 300 files... (8 slices from current file)
+2026-01-31 14:32:53,007 | INFO | Processed 350 files... (8 slices from current file)
+2026-01-31 14:33:03,074 | INFO | Processed 400 files... (8 slices from current file)
+2026-01-31 14:33:13,272 | INFO | Processed 450 files... (8 slices from current file)
+2026-01-31 14:33:23,127 | INFO | Processed 500 files... (8 slices from current file)
+2026-01-31 14:33:33,868 | INFO | Processed 550 files... (20 slices from current file)
+2026-01-31 14:33:45,015 | INFO | Processed 600 files... (4 slices from current file)
+2026-01-31 14:33:56,622 | INFO | Processed 650 files... (4 slices from current file)
+2026-01-31 14:34:07,748 | INFO | Processed 700 files... (4 slices from current file)
+2026-01-31 14:34:18,330 | INFO | Processed 750 files... (4 slices from current file)
+2026-01-31 14:34:28,799 | INFO | Processed 800 files... (4 slices from current file)
+2026-01-31 14:34:39,005 | INFO | Processed 850 files... (4 slices from current file)
+2026-01-31 14:34:49,006 | INFO | Processed 900 files... (4 slices from current file)
+2026-01-31 14:34:58,664 | INFO | Processed 950 files... (4 slices from current file)
+2026-01-31 14:35:08,824 | INFO | Processed 1000 files... (4 slices from current file)
+2026-01-31 14:35:19,034 | INFO | Processed 1050 files... (4 slices from current file)
+2026-01-31 14:35:28,765 | INFO | Processed 1100 files... (4 slices from current file)
+2026-01-31 14:35:39,816 | INFO | Processed 1150 files... (4 slices from current file)
+2026-01-31 14:35:50,686 | INFO | Processed 1200 files... (4 slices from current file)
+2026-01-31 14:36:01,645 | INFO | Processed 1250 files... (4 slices from current file)
+2026-01-31 14:36:12,102 | INFO | Processed 1300 files... (4 slices from current file)
+2026-01-31 14:36:21,844 | INFO | Processed 1350 files... (4 slices from current file)
+2026-01-31 14:36:32,264 | INFO | Processed 1400 files... (4 slices from current file)
+2026-01-31 14:36:42,376 | INFO | Processed 1450 files... (4 slices from current file)
+2026-01-31 14:36:52,185 | INFO | Processed 1500 files... (4 slices from current file)
+2026-01-31 14:37:02,332 | INFO | Processed 1550 files... (4 slices from current file)
+2026-01-31 14:37:12,961 | INFO | Processed 1600 files... (4 slices from current file)
+2026-01-31 14:37:29,482 | INFO | Processed 1650 files... (8 slices from current file)
+2026-01-31 14:37:40,278 | INFO | Processed 1700 files... (8 slices from current file)
+2026-01-31 14:37:50,972 | INFO | Processed 1750 files... (8 slices from current file)
+2026-01-31 14:38:01,508 | INFO | Processed 1800 files... (8 slices from current file)
+2026-01-31 14:38:12,176 | INFO | Processed 1850 files... (8 slices from current file)
+2026-01-31 14:38:22,816 | INFO | Processed 1900 files... (8 slices from current file)
+2026-01-31 14:38:33,357 | INFO | Processed 1950 files... (8 slices from current file)
+2026-01-31 14:38:33,415 | INFO | 
+New Balanced Distribution (Slices):
+2026-01-31 14:38:33,424 | INFO | label
+3    4284
+2    3984
+1    2664
+0     980
+Name: count, dtype: int64
+2026-01-31 14:38:33,437 | INFO | Training Class Distribution:
+label
+3    3456
+2    3216
+1    2064
+0     720
+Name: count, dtype: int64
+2026-01-31 14:41:03,292 | INFO | Epoch 1/40 | Loss: 0.7285 | Val Acc: 0.8127
+2026-01-31 14:41:44,875 | INFO | Epoch 2/40 | Loss: 0.4180 | Val Acc: 0.8970
+2026-01-31 14:42:08,106 | INFO | Epoch 3/40 | Loss: 0.2933 | Val Acc: 0.9279
+2026-01-31 14:42:23,476 | INFO | Epoch 4/40 | Loss: 0.2154 | Val Acc: 0.9226
+2026-01-31 14:42:35,014 | INFO | Epoch 5/40 | Loss: 0.1705 | Val Acc: 0.9426
+2026-01-31 14:42:44,616 | INFO | Epoch 6/40 | Loss: 0.1404 | Val Acc: 0.9255
+2026-01-31 14:42:53,587 | INFO | Epoch 7/40 | Loss: 0.1214 | Val Acc: 0.9511
+2026-01-31 14:43:02,117 | INFO | Epoch 8/40 | Loss: 0.1018 | Val Acc: 0.9344
+2026-01-31 14:43:10,923 | INFO | Epoch 9/40 | Loss: 0.0947 | Val Acc: 0.8555
+2026-01-31 14:43:19,164 | INFO | Epoch 10/40 | Loss: 0.0779 | Val Acc: 0.9577
+2026-01-31 14:43:27,444 | INFO | Epoch 11/40 | Loss: 0.0729 | Val Acc: 0.9528
+2026-01-31 14:43:35,796 | INFO | Epoch 12/40 | Loss: 0.0689 | Val Acc: 0.9585
+2026-01-31 14:43:44,741 | INFO | Epoch 13/40 | Loss: 0.0632 | Val Acc: 0.9430
+2026-01-31 14:43:52,858 | INFO | Epoch 14/40 | Loss: 0.0647 | Val Acc: 0.9568
+2026-01-31 14:44:00,953 | INFO | Epoch 15/40 | Loss: 0.0468 | Val Acc: 0.9686
+2026-01-31 14:44:09,429 | INFO | Epoch 16/40 | Loss: 0.0421 | Val Acc: 0.9430
+2026-01-31 14:44:17,389 | INFO | Epoch 17/40 | Loss: 0.0462 | Val Acc: 0.9593
+2026-01-31 14:44:25,371 | INFO | Epoch 18/40 | Loss: 0.0427 | Val Acc: 0.9601
+2026-01-31 14:44:33,422 | INFO | Epoch 19/40 | Loss: 0.0418 | Val Acc: 0.9629
+2026-01-31 14:44:41,473 | INFO | Epoch 20/40 | Loss: 0.0395 | Val Acc: 0.9581
+2026-01-31 14:44:49,653 | INFO | Epoch 21/40 | Loss: 0.0369 | Val Acc: 0.9389
+2026-01-31 14:44:57,704 | INFO | Epoch 22/40 | Loss: 0.0339 | Val Acc: 0.9483
+2026-01-31 14:45:05,759 | INFO | Epoch 23/40 | Loss: 0.0348 | Val Acc: 0.9532
+2026-01-31 14:45:13,767 | INFO | Epoch 24/40 | Loss: 0.0454 | Val Acc: 0.9475
+2026-01-31 14:45:21,714 | INFO | Epoch 25/40 | Loss: 0.0307 | Val Acc: 0.9597
+2026-01-31 14:45:29,722 | INFO | Epoch 26/40 | Loss: 0.0258 | Val Acc: 0.9572
+2026-01-31 14:45:38,427 | INFO | Epoch 27/40 | Loss: 0.0277 | Val Acc: 0.9748
+2026-01-31 14:45:46,965 | INFO | Epoch 28/40 | Loss: 0.0225 | Val Acc: 0.9634
+2026-01-31 14:45:54,919 | INFO | Epoch 29/40 | Loss: 0.0298 | Val Acc: 0.9609
+2026-01-31 14:46:03,316 | INFO | Epoch 30/40 | Loss: 0.0217 | Val Acc: 0.9674
+2026-01-31 14:46:11,368 | INFO | Epoch 31/40 | Loss: 0.0249 | Val Acc: 0.9662
+2026-01-31 14:46:19,381 | INFO | Epoch 32/40 | Loss: 0.0218 | Val Acc: 0.9613
+2026-01-31 14:46:27,402 | INFO | Epoch 33/40 | Loss: 0.0274 | Val Acc: 0.9511
+2026-01-31 14:46:36,227 | INFO | Epoch 34/40 | Loss: 0.0201 | Val Acc: 0.9707
+2026-01-31 14:46:44,732 | INFO | Epoch 35/40 | Loss: 0.0220 | Val Acc: 0.9646
+2026-01-31 14:46:53,584 | INFO | Epoch 36/40 | Loss: 0.0243 | Val Acc: 0.9544
+2026-01-31 14:47:01,947 | INFO | Epoch 37/40 | Loss: 0.0211 | Val Acc: 0.9646
+2026-01-31 14:47:10,007 | INFO | Epoch 38/40 | Loss: 0.0213 | Val Acc: 0.9662
+2026-01-31 14:47:18,234 | INFO | Epoch 39/40 | Loss: 0.0148 | Val Acc: 0.9654
+2026-01-31 14:47:26,445 | INFO | Epoch 40/40 | Loss: 0.0173 | Val Acc: 0.9666
+2026-01-31 14:47:26,462 | INFO | 
+Classification Report:
+              precision    recall  f1-score   support
+
+      Normal       0.97      0.80      0.87       260
+   Imbalance       0.96      0.99      0.97       600
+Misalignment       0.94      0.97      0.96       768
+     Bearing       1.00      1.00      1.00       828
+
+    accuracy                           0.97      2456
+   macro avg       0.97      0.94      0.95      2456
+weighted avg       0.97      0.97      0.97      2456
+
+2026-01-31 14:47:27,738 | INFO | Saved confusion matrix to models_gen_robust

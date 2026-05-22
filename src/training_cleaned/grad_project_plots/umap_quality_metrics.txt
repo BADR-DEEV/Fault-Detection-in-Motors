@@ -1,0 +1,8 @@
+UMAP Quality Assessment
+=====================
+Class Separation Score: 8.0432
+k-NN Consistency: 0.5387
+
+Interpretation:
+- Separation Score > 1.0: Good class separation
+- k-NN Consistency > 0.6: Good structure preservation

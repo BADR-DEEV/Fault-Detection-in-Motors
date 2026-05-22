@@ -1,0 +1,37 @@
+{
+  "seed": 42,
+  "target_fs": 4000,
+  "window_sec": 1.0,
+  "window_pts": 4000,
+  "max_order": 10.0,
+  "order_bins": 512,
+  "rpm_jitter_range": [
+    0.85,
+    1.15
+  ],
+  "energy_shift_db": [
+    -10,
+    10
+  ],
+  "snr_range_db": [
+    15,
+    30
+  ],
+  "severity_weights": {
+    "normal": 1.0,
+    "imbalance": 1.2,
+    "misalignment": 1.0,
+    "bearing_0g": 2.5,
+    "bearing_6g": 1.5,
+    "bearing_20g": 1.0,
+    "bearing_35g": 0.8
+  },
+  "batch_size": 32,
+  "num_epochs": 100,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "patience": 15,
+  "min_lr": 1e-06,
+  "use_domain_adversarial": false,
+  "domain_confusion_weight": 0.0,
+  "raw_data_dir": 

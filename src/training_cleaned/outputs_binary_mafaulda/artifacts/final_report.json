@@ -1,0 +1,108 @@
+{
+  "config": {
+    "data_root": "C:\\dev_work\\personal\\Ai-Driven-Vibrations-motor\\data\\raw_mafulda",
+    "output_dir": "outputs_binary_mafaulda",
+    "cache_filename": "binary_mafaulda_features_cache.pkl",
+    "force_rebuild_cache": false,
+    "random_state": 42,
+    "n_jobs": -1,
+    "sampling_freq_raw": 50000,
+    "decimation_factor": 13,
+    "window_size": 4096,
+    "stride": 2048,
+    "rpm_min": 400.0,
+    "rpm_max": 5000.0,
+    "cv_splits": 5,
+    "cv_repeats": 8,
+    "n_label_permutations": 60,
+    "axis_perm_repeats": 30,
+    "rpm_bands": [
+      [
+        "low",
+        600,
+        1500
+      ],
+      [
+        "mid",
+        1501,
+        2500
+      ],
+      [
+        "high",
+        2501,
+        3800
+      ]
+    ],
+    "normal_label_name": "Normal",
+    "imbalance_label_name": "Imbalance"
+  },
+  "dataset": {
+    "n_windows": 2160,
+    "n_unique_files": 332,
+    "n_normal": 277,
+    "n_imbalance": 1883,
+    "rpm_min": 3496.503496503497,
+    "rpm_max": 4962.779156327543
+  },
+  "cv_svm": {
+    "balanced_accuracy_mean": 0.9654248775344245,
+    "balanced_accuracy_std": 0.03481144867602502,
+    "f1_macro_mean": 0.9689026490067938,
+    "f1_macro_std": 0.025407778305526423,
+    "mcc_mean": 0.9396654762887412,
+    "roc_auc_mean": 0.9980489471666448,
+    "pr_auc_mean": 0.9997113961977998
+  },
+  "cv_dummy": {
+    "balanced_accuracy_mean": 0.5,
+    "f1_macro_mean": 0.4657430637995814
+  },
+  "label_randomization": {
+    "n_permutations": 60,
+    "p_value": 0.01639344262295082,
+    "observed_balanced_accuracy": 0.9654248775344245
+  },
+  "holdout_metrics": {
+    "accuracy": 0.9930555555555556,
+    "balanced_accuracy": 0.9960106382978724,
+    "precision_imbalance": 1.0,
+    "recall_imbalance_sensitivity": 0.9920212765957447,
+    "recall_normal_specificity": 1.0,
+    "f1_imbalance": 0.9959946595460614,
+    "f1_macro": 0.9849538515121612,
+    "mcc": 0.9703502031580363,
+    "roc_auc": 1.0,
+    "pr_auc": 1.0,
+    "tn": 56,
+    "fp": 0,
+    "fn": 3,
+    "tp": 373
+  },
+  "holdout_ci95": {
+    "balanced_accuracy": [
+      0.9890694636258446,
+      1.0
+    ],
+    "recall_imbalance_sensitivity": [
+      0.978138927251689,
+      1.0
+    ],
+    "recall_normal_specificity": [
+      1.0,
+      1.0
+    ],
+    "f1_imbalance": [
+      0.9889486657051502,
+      1.0
+    ],
+    "roc_auc": [
+      0.9999999999999999,
+      1.0
+    ],
+    "pr_auc": [
+      1.0,
+      1.0
+    ]
+  },
+  "scorecard": {
+    "cv_balacc_high": 

@@ -1,0 +1,17 @@
+Feature Separation Ranking:
+Flatness: 0.4102
+Mean: 0.3671
+RMS: 0.3557
+CrestFactor: 0.3473
+Pk2Pk: 0.3178
+StdDev: 0.3040
+SpecFlux: 0.2850
+Energy: 0.2499
+SpecCentroid: 0.1947
+Skew: 0.1870
+Spread: 0.1536
+RollOff: 0.1384
+AxialRatio: 0.1371
+Kurtosis: 0.0009
+Decrease: 0.0000
+Slope: 0.0000

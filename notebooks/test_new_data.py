@@ -11,7 +11,7 @@ from tqdm import tqdm
 BASE_DIR = Path(__file__).resolve().parents[2]
 sys.path.append(str(BASE_DIR))
 
-from src.training.train_explain_cnn import (
+from playground.legacy.training.train_explain_cnn import (
     ExplainableCNN,
     compute_order_spectrum,
     safe_zscore

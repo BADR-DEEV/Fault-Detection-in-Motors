@@ -14,7 +14,7 @@ from typing import List, Dict, Optional
 from pathlib import Path
 
 # ==================== CONFIGURATION ====================
-MODEL_PIPELINE_PATH = r"C:\DEV\personal\Ai-Driven-Vibrations-motor\src\training_cleaned\svm_pipeline_physics_validated.pkl"
+MODEL_PIPELINE_PATH = r"C:\DEV\personal\Ai-Driven-Vibrations-motor\models\01_baseline_emd\svm_pipeline_physics_validated.pkl"
 RAW_DATA_ROOT = r"C:\DEV\personal\Ai-Driven-Vibrations-motor\data\raw_mafulda"
 
 WINDOW_SIZE = 4096

@@ -10,7 +10,7 @@ from scipy.signal import resample_poly, welch
 # Adjust path to find your source modules
 sys.path.append(str(Path(__file__).resolve().parents[2]))
 
-from src.training.train_explain_cnn import (
+from playground.legacy.training.train_explain_cnn import (
     ExplainableCNN,
     compute_order_spectrum,
     safe_zscore

@@ -12,7 +12,7 @@ sys.path.append(str(Path(__file__).resolve().parents[2]))
 
 # Import your specific model functions
 # Ensure train_explain_cnn contains ExplainableCNN and compute_order_spectrum
-from src.training.train_explain_cnn import ExplainableCNN, compute_order_spectrum, safe_zscore
+from playground.legacy.training.train_explain_cnn import ExplainableCNN, compute_order_spectrum, safe_zscore
 
 # --- 1. DEFINE LOCAL CONFIG FOR INFERENCE ---
 # We define this here so we don't depend on the training Config class

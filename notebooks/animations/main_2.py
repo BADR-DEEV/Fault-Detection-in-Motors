@@ -126,60 +126,60 @@ class MaFaulDaPipeline(Scene):
         # SECTION 3: ABLATION (MAFAULDA REALITY CHECK)
         # ---------------------------------------------------------
         
-        step3_title = Text("2. Validation: MaFaulDa Physics (Radial Dominance)", font_size=32, color=C_TXT).to_corner(UL)
-        self.play(ReplacementTransform(step2_title, step3_title), FadeOut(section2_group))
+        # step3_title = Text("2. Validation: MaFaulDa Physics (Radial Dominance)", font_size=32, color=C_TXT).to_corner(UL)
+        # self.play(ReplacementTransform(step2_title, step3_title), FadeOut(section2_group))
         
-        # Chart
-        chart_ax = Axes(
-            x_range=[0, 3, 1], y_range=[94, 100, 2],
-            x_length=6, y_length=4,
-            axis_config={"include_numbers": True},
-            y_axis_config={"include_tip": False}
-        ).shift(DOWN*0.5)
+        # # Chart
+        # chart_ax = Axes(
+        #     x_range=[0, 3, 1], y_range=[94, 100, 2],
+        #     x_length=6, y_length=4,
+        #     axis_config={"include_numbers": True},
+        #     y_axis_config={"include_tip": False}
+        # ).shift(DOWN*0.5)
         
-        y_lbl = chart_ax.get_y_axis_label(Text("Accuracy %", font_size=20).rotate(90*DEGREES), edge=LEFT, direction=LEFT, buff=0.3)
+        # y_lbl = chart_ax.get_y_axis_label(Text("Accuracy %", font_size=20).rotate(90*DEGREES), edge=LEFT, direction=LEFT, buff=0.3)
         
-        # Data from logs
-        # Full: 98.53, No Ax: 96.84 (-1.7), No Rad: 95.97 (-2.6)
+        # # Data from logs
+        # # Full: 98.53, No Ax: 96.84 (-1.7), No Rad: 95.97 (-2.6)
         
-        bar_full = Rectangle(height=chart_ax.c2p(0, 98.53)[1] - chart_ax.c2p(0, 94)[1], width=1, color=GREEN, fill_opacity=0.8)
-        bar_full.move_to(chart_ax.c2p(0.5, 94), aligned_edge=DOWN)
+        # bar_full = Rectangle(height=chart_ax.c2p(0, 98.53)[1] - chart_ax.c2p(0, 94)[1], width=1, color=GREEN, fill_opacity=0.8)
+        # bar_full.move_to(chart_ax.c2p(0.5, 94), aligned_edge=DOWN)
         
-        bar_no_ax = Rectangle(height=chart_ax.c2p(0, 96.84)[1] - chart_ax.c2p(0, 94)[1], width=1, color=C_AXIAL, fill_opacity=0.6)
-        bar_no_ax.move_to(chart_ax.c2p(1.5, 94), aligned_edge=DOWN)
+        # bar_no_ax = Rectangle(height=chart_ax.c2p(0, 96.84)[1] - chart_ax.c2p(0, 94)[1], width=1, color=C_AXIAL, fill_opacity=0.6)
+        # bar_no_ax.move_to(chart_ax.c2p(1.5, 94), aligned_edge=DOWN)
         
-        bar_no_rad = Rectangle(height=chart_ax.c2p(0, 95.97)[1] - chart_ax.c2p(0, 94)[1], width=1, color=C_RADIAL, fill_opacity=0.6)
-        bar_no_rad.move_to(chart_ax.c2p(2.5, 94), aligned_edge=DOWN)
+        # bar_no_rad = Rectangle(height=chart_ax.c2p(0, 95.97)[1] - chart_ax.c2p(0, 94)[1], width=1, color=C_RADIAL, fill_opacity=0.6)
+        # bar_no_rad.move_to(chart_ax.c2p(2.5, 94), aligned_edge=DOWN)
         
-        # Labels
-        lbl_full = Text("Full", font_size=18).next_to(bar_full, DOWN)
-        val_full = Text("98.5%", font_size=20, color=GREEN).next_to(bar_full, UP)
+        # # Labels
+        # lbl_full = Text("Full", font_size=18).next_to(bar_full, DOWN)
+        # val_full = Text("98.5%", font_size=20, color=GREEN).next_to(bar_full, UP)
         
-        lbl_ax = Text("No Axial", font_size=18).next_to(bar_no_ax, DOWN)
-        val_ax = Text("-1.7%", font_size=18, color=RED).next_to(bar_no_ax, UP)
+        # lbl_ax = Text("No Axial", font_size=18).next_to(bar_no_ax, DOWN)
+        # val_ax = Text("-1.7%", font_size=18, color=RED).next_to(bar_no_ax, UP)
         
-        lbl_rad = Text("No Radial", font_size=18).next_to(bar_no_rad, DOWN)
-        val_rad = Text("-2.6%", font_size=18, color=RED).next_to(bar_no_rad, UP)
+        # lbl_rad = Text("No Radial", font_size=18).next_to(bar_no_rad, DOWN)
+        # val_rad = Text("-2.6%", font_size=18, color=RED).next_to(bar_no_rad, UP)
         
-        self.play(Create(chart_ax), Write(y_lbl))
-        self.play(GrowFromEdge(bar_full, DOWN), FadeIn(lbl_full), Write(val_full))
-        self.play(GrowFromEdge(bar_no_ax, DOWN), FadeIn(lbl_ax), Write(val_ax))
+        # self.play(Create(chart_ax), Write(y_lbl))
+        # self.play(GrowFromEdge(bar_full, DOWN), FadeIn(lbl_full), Write(val_full))
+        # self.play(GrowFromEdge(bar_no_ax, DOWN), FadeIn(lbl_ax), Write(val_ax))
         
-        # Highlight Radial Drop
-        self.play(GrowFromEdge(bar_no_rad, DOWN), FadeIn(lbl_rad), Write(val_rad))
+        # # Highlight Radial Drop
+        # self.play(GrowFromEdge(bar_no_rad, DOWN), FadeIn(lbl_rad), Write(val_rad))
         
-        verdict = Text("Verdict: Radial Features Critical (MaFaulDa Coupling Physics).", font_size=20, color=C_RADIAL).to_edge(DOWN)
-        self.play(Write(verdict))
-        self.wait(2)
+        # verdict = Text("Verdict: Radial Features Critical (MaFaulDa Coupling Physics).", font_size=20, color=C_RADIAL).to_edge(DOWN)
+        # self.play(Write(verdict))
+        # self.wait(2)
         
-        section3_group = VGroup(chart_ax, y_lbl, bar_full, bar_no_ax, bar_no_rad, lbl_full, val_full, lbl_ax, val_ax, lbl_rad, val_rad, verdict)
+        # section3_group = VGroup(chart_ax, y_lbl, bar_full, bar_no_ax, bar_no_rad, lbl_full, val_full, lbl_ax, val_ax, lbl_rad, val_rad, verdict)
         
         # ---------------------------------------------------------
         # SECTION 4: SPECTRAL SPREAD (Normal vs Fault)
         # ---------------------------------------------------------
         
-        step4_title = Text("3. Bearing Physics: Spectral Spread Analysis", font_size=32, color=C_TXT).to_corner(UL)
-        self.play(ReplacementTransform(step3_title, step4_title), FadeOut(section3_group))
+        step4_title = Text("2. Bearing Physics: Spectral Spread Analysis", font_size=32, color=C_TXT).to_corner(UL)
+        self.play(ReplacementTransform(step2_title, step4_title), FadeOut(section2_group))
         
         # Graph
         spec_ax = Axes(
@@ -214,7 +214,7 @@ class MaFaulDaPipeline(Scene):
             ReplacementTransform(lbl_norm, lbl_fault)
         )
         
-        explanation = Text("Early faults concentrate energy into harmonics -> Lower Spread.", font_size=20, color=GRAY).to_edge(DOWN)
+        explanation = Text("Early faults concentrate energy into harmonics -> Lower Spread.", font_size=20, color=GRAY).to_edge(DOWN * 1.5)
         self.play(Write(explanation))
         self.wait(2)
         

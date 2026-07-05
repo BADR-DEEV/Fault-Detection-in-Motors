@@ -1,31 +1,152 @@
-# Vibration-Based Fault Detection using EMD and Machine Learning
+# AI-Driven Vibrations Motor
 
-## 📌 Overview
-This project implements a machine learning pipeline to detect faults in rotating machines using vibration sensor data. The system utilizes **Empirical Mode Decomposition (EMD)** to break down non-stationary vibration signals into Intrinsic Mode Functions (IMFs).
+Universal project README for the three production phases:
 
-From these IMFs, a hybrid set of **Time-Domain** and **Spectral** features are extracted to train classifiers (SVM, KNN, LDA) to distinguish between "Healthy" and "Faulty" states. This repository is designed for research collaboration and modular experimentation.
+- `01_baseline_emd`
+- `02_multiclass_xai`
+- `03_ordetracking_cnn`
 
-## 📂 Dataset Setup
-The project relies on the **Vibration Faults Dataset for Rotating Machines**.
+## Overview
 
-**1. Download the Dataset:**
-[Kaggle: Vibration Faults Dataset for Rotating Machines](https://www.kaggle.com/datasets/sumairaziz/vibration-faults-dataset-for-rotating-machines)
+This repository contains three organized fault-diagnosis pipelines built around vibration analysis for rotating machinery.
 
-**2. Directory Structure:**
-To ensure the code runs without path errors, please organize your directories exactly as follows relative to the code files. The code expects the dataset to be in a folder one level up (`../Dataset`) or modified in `load_data.py`.
+- Phase 1 is a classical baseline using EMD plus handcrafted features plus SVM-style modeling.
+- Phase 2 is a paper-reproduction pipeline for binary healthy vs faulty classification using EMD-derived feature sets and model comparison.
+- Phase 3 is an order-tracking CNN pipeline for deep learning on multi-axis vibration spectra.
 
-## Updates are available in our Notion page:
-https://www.notion.so/2b9caed544b780619e39f8c00c7fa335
+The work uses two datasets:
+
+- `MaFaulDa` for the multiclass and deep learning phases.
+- `Hasan` dataset for the binary paper-reproduction phase.
+
+## Repository Layout
 
 ```text
-Project_Root/
-├── Dataset/                 <-- Downloaded data folder
-│   ├── Healthy/             <-- Contains .mat files for healthy data
-│   └── Faulty/              <-- Contains .mat files for faulty data
-├── src/                     <-- Your python scripts
-│   ├── main.py              (Main execution script)
-│   ├── load_data.py         (Data loading logic)
-│   └── emd_imfs.py          (EMD signal processing)
-├── Results/                 <-- Generated automatically on run
-├── requirements.txt
-└── README.md
+.
+├── 01_baseline_emd/        Phase 1 production code
+├── 02_multiclass_xai/      Phase 2 production code
+├── 03_ordetracking_cnn/    Phase 3 production code
+├── models/                 Final production models
+├── playground_models/      Extra and legacy model artifacts
+├── figures/                Centralized figures by phase
+├── playground/             Old experiments and non-production files
+├── src/                    Remaining app and support code
+└── data/                   Local datasets (not included here)
+```
+
+## Dataset Layout
+
+Expected local dataset structure:
+
+```text
+data/
+├── raw_mafulda/
+│   ├── normal/
+│   ├── imbalance/
+│   ├── horizontal-misalignment/
+│   ├── vertical-misalignment/
+│   └── underhang/
+│       ├── ball_fault/
+│       └── outer_race/
+└── paper_data/
+    ├── Healthy/
+    └── Faulty/
+```
+
+Interpretation:
+
+- `raw_mafulda` = MaFaulDa dataset
+- `paper_data` = Hasan dataset used in the paper-style reproduction pipeline
+
+## Installation
+
+Use the existing virtual environment or install from `requirements.txt`.
+
+```powershell
+pip install -r requirements.txt
+```
+
+## How To Run
+
+### Phase 1: Baseline EMD
+
+MaFaulDa multiclass baseline with handcrafted physics-aware features.
+
+```powershell
+python 01_baseline_emd\run_phase1.py
+```
+
+Outputs:
+
+- Model: `models/01_baseline_emd/`
+- Figures: `figures/01_baseline_emd/`
+- Extra reports/artifacts: `01_baseline_emd/artifacts/`
+
+### Phase 2: Multiclass XAI / Paper Reproduction
+
+Binary healthy vs faulty paper-reproduction pipeline using the Hasan dataset in `data/paper_data`.
+
+```powershell
+python 02_multiclass_xai\train_paper_repro.py
+```
+
+Outputs:
+
+- Tables and summaries: `02_multiclass_xai/artifacts/`
+- Confusion matrices and plots: `figures/02_multiclass_xai/`
+- Final promoted models: `models/02_multiclass_xai/`
+
+### Phase 3: Order-Tracking CNN
+
+Deep learning pipeline on MaFaulDa using order tracking and CNN classification.
+
+```powershell
+python 03_ordetracking_cnn\mafaulda_deep.py
+```
+
+Outputs:
+
+- Final model weights and preprocessing artifacts: `models/03_ordetracking_cnn/`
+- Figures: `figures/03_ordetracking_cnn/`
+- Reports and metrics: `03_ordetracking_cnn/artifacts/`
+
+## Phase Summary
+
+### `01_baseline_emd`
+
+- Dataset: MaFaulDa
+- Method: EMD + handcrafted features + SVM pipeline
+- Focus: interpretable classical baseline
+
+### `02_multiclass_xai`
+
+- Dataset: Hasan `paper_data`
+- Method: EMD reconstruction + multiple feature families + model comparison
+- Focus: paper reproduction and feature-set benchmarking
+
+### `03_ordetracking_cnn`
+
+- Dataset: MaFaulDa
+- Method: order tracking + spectral preprocessing + CNN
+- Focus: deep learning production pipeline
+
+## Artifacts Policy
+
+- Final production-ready model files are stored in `models/`.
+- Non-final or historical model files are stored in `playground_models/`.
+- Centralized figures are stored in `figures/`.
+- Old notebooks, exploratory scripts, and legacy copies were moved to `playground/`.
+
+## Notes
+
+- The datasets are local and are not bundled in this repository.
+- Phase folder names start with digits for ordering, but the internal Python packages use valid import names.
+- Root-level app code such as `src/app/ai_server.py` now points to the new production model location for phase 1.
+
+## Per-Phase READMEs
+
+For phase-specific details:
+
+- [01_baseline_emd/README.md](01_baseline_emd/README.md)
+- [02_multiclass_xai/README.md](02_multiclass_xai/README.md)
+- [03_ordetracking_cnn/README.md](03_ordetracking_cnn/README.md)

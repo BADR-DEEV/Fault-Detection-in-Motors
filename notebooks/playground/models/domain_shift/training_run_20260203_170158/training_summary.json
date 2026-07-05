@@ -1,0 +1,64 @@
+{
+  "timestamp": "20260203_170158",
+  "config": {
+    "seed": 42,
+    "target_fs": 4000,
+    "window_sec": 1.0,
+    "window_pts": 4000,
+    "short_window_sec": 0.2,
+    "short_window_pts": 800,
+    "max_order": 10.0,
+    "order_bins": 512,
+    "rpm_jitter_range": [
+      0.75,
+      1.35
+    ],
+    "energy_shift_db": [
+      -15,
+      15
+    ],
+    "snr_range_db": [
+      10,
+      35
+    ],
+    "severity_weights": {
+      "normal": 8.0,
+      "imbalance": 1.5,
+      "misalignment": 1.2,
+      "bearing_6g": 2.0,
+      "bearing_20g": 1.2,
+      "bearing_35g": 0.8
+    },
+    "batch_size": 32,
+    "num_epochs": 100,
+    "learning_rate": 0.001,
+    "weight_decay": 0.0001,
+    "patience": 20,
+    "min_lr": 1e-06,
+    "short_window_prob": 0.2,
+    "sensor_max_freq": 4000,
+    "raw_data_dir": "..\\..\\data\\raw_mafulda",
+    "processed_dir": "..\\..\\data\\4k_mafulda_structured",
+    "output_dir": "..\\..\\models\\domain_shift\\training_run_20260203_170158"
+  },
+  "train_samples": 1066,
+  "val_samples": 269,
+  "test_samples": 269,
+  "best_val_balanced_acc": 0.936271137447608,
+  "test_accuracy": 0.8884758364312267,
+  "test_balanced_accuracy": 0.8944588744588744,
+  "class_distribution": {
+    "Bearing": 513,
+    "Misalignment": 498,
+    "Normal": 449,
+    "Imbalance": 333
+  },
+  "severity_distribution": {
+    "misalignment": 498,
+    "normal": 449,
+    "imbalance": 333,
+    "bearing_0g": 270,
+    "bearing_6g": 141,
+    "bearing_35g": 102
+  }
+}

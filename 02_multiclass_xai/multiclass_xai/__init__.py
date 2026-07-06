@@ -1,3 +1,3 @@
-from .pipeline import main
+from .train import main
 
 __all__ = ["main"]

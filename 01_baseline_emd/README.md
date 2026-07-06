@@ -10,12 +10,12 @@ This folder contains the production EMD plus SVM baseline moved out of `src`.
 From the repository root:
 
 ```powershell
-python 01_baseline_emd\run_phase1.py
+python 01_baseline_emd\train_paper_repro.py
 ```
 
 ## Inputs
 
-- Dataset root: `data/raw_mafulda`
+- Dataset root: `data/paper_data`
 
 ## Outputs
 

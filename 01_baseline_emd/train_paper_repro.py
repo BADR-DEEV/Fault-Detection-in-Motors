@@ -1,4 +1,4 @@
-from multiclass_xai.pipeline import main
+from baseline_emd.pipeline import main
 
 
 if __name__ == "__main__":
